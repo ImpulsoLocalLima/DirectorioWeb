@@ -382,7 +382,7 @@ textarea { resize:vertical; min-height:120px; }
   <header class="site" role="banner">
     <div class="container nav" aria-label="Barra de navegación principal">
       <a class="brand" href="#/" aria-label="Ir a inicio ImpulsoLocal">
-        <span class="brand-logo" aria-hidden="true"> <img src="images/logotipo Impulso local Lima03.png" alt=""></span>
+        <span class="brand-logo" aria-hidden="true"> <img src="logotipo Impulso local Lima03.png" alt=""></span>
         <span class="brand-title">Impulso Local Lima<span style="opacity:.65"></span></span>
       </a>
 
@@ -542,33 +542,33 @@ textarea { resize:vertical; min-height:120px; }
     // --- Datos seed (ficticios) ---
     const DATA = {
       categorias: [
-        { id:'servicios-profesionales', nombre:'Servicios', icon:'images/14773849.png', total:0 },
-        { id:'comida-bebida',           nombre:'Alimentos y Bebidas',       icon:'images/alimentos2.png', total:0 },
-        { id:'hogar-ferreteria',        nombre:'Hogar',    icon:'images/4203528.png', total:0 },
-        { id:'salud-belleza',           nombre:'Salud y Bienestar',       icon:'images/1970972.png', total:0 },
-        { id:'tecnologia',              nombre:'Productos Digitales y Tecnología',            icon:'images/productodigital.webp', total:0 },
-        { id:'mascotas',                nombre:'Mascotas',              icon:'images/3047928.png', total:0 },
-        { id:'alquileres-espacios',    nombre:'Alquileres y Espacios',            icon:'images/3524895.png', total:0 },
-        { id:'educacion',               nombre:'Librería y Educación',             icon:'images/3557635.png', total:0 },
-        { id:'ropa-accesorios',               nombre:'Ropa y Accesorios',             icon:'images/7695898.png', total:0 },
+        { id:'servicios-profesionales', nombre:'Servicios', icon:'14773849.png', total:0 },
+        { id:'comida-bebida',           nombre:'Alimentos y Bebidas',       icon:'alimentos2.png', total:0 },
+        { id:'hogar-ferreteria',        nombre:'Hogar',    icon:'4203528.png', total:0 },
+        { id:'salud-belleza',           nombre:'Salud y Bienestar',       icon:'1970972.png', total:0 },
+        { id:'tecnologia',              nombre:'Productos Digitales y Tecnología',            icon:'productodigital.webp', total:0 },
+        { id:'mascotas',                nombre:'Mascotas',              icon:'3047928.png', total:0 },
+        { id:'alquileres-espacios',    nombre:'Alquileres y Espacios',            icon:'3524895.png', total:0 },
+        { id:'educacion',               nombre:'Librería y Educación',             icon:'3557635.png', total:0 },
+        { id:'ropa-accesorios',               nombre:'Ropa y Accesorios',             icon:'7695898.png', total:0 },
       ],
       empresas: [
-        { id:'e-001', nombre:'Jardín de Ida', cat:'comida-bebida', loc:'San Miguel', verificada:true, cover: 'images/anturio blanco.webp', 
+        { id:'e-001', nombre:'Jardín de Ida', cat:'comida-bebida', loc:'San Miguel', verificada:true, cover: 'anturio blanco.webp', 
           // ⭐ NUEVO: Slogan personalizado
       slogan: 'Verde que inspira, vida que florece.',
          // ⭐ NUEVO: Banner superior
-      banner: 'images/width_8001 (1).jpeg', // ← agrega esta línea
+      banner: 'width_8001 (1).jpeg', // ← agrega esta línea
 
       // ⭐ NUEVO: Logo personalizado
-      logo: 'images/6144736inspiración.png', // ruta de tu imagen
-      imgpresentacion: 'images/width_800.jpeg',
+      logo: '6144736inspiración.png', // ruta de tu imagen
+      imgpresentacion: 'width_800.jpeg',
         galeria: [                            
-        'images/anturio blanco.webp',
-        'images/anturio rojo.jpeg', 
-        'images/orquidea-phalaenopsis-blancas-bs.jpg',
-        'images/orquideas-rosas-bs_negra_1_1_1.png',
-        'images/width_800.jpeg',
-        'images/wmremove-transformed (1).jpeg',
+        'anturio blanco.webp',
+        'anturio rojo.jpeg', 
+        'orquidea-phalaenopsis-blancas-bs.jpg',
+        'orquideas-rosas-bs_negra_1_1_1.png',
+        'width_800.jpeg',
+        'wmremove-transformed (1).jpeg',
         
       ],
 
@@ -673,7 +673,7 @@ textarea { resize:vertical; min-height:120px; }
   // enriquecer empresas con subcat, breve y icon
   const pick = (arr)=> arr[Math.floor(Math.random()*arr.length)];
   const iconByCat = {
-    'comida-bebida':'🍽️','hogar-ferreteria':'🛠️','tecnologia':'images/3524895.png','mascotas':'🐾','automotriz':'🚗',
+    'comida-bebida':'🍽️','hogar-ferreteria':'🛠️','tecnologia':'3524895.png','mascotas':'🐾','automotriz':'🚗',
     'salud-belleza':'💊','educacion':'📚','servicios-profesionales':'🧑‍💼'
   };
 
@@ -1054,7 +1054,7 @@ function viewCategoriasHub(){
       grid.innerHTML = cats.map(c=>{
         // Detectar si el icono es imagen o emoji
         const icon = c.icon || '🏢';
-        const isImage = icon.startsWith('images/') || icon.startsWith('http') || icon.includes('.png') || icon.includes('.jpg') || icon.includes('.svg');
+        const isImage = icon.startsWith('') || icon.startsWith('http') || icon.includes('.png') || icon.includes('.jpg') || icon.includes('.svg');
         
         const iconHtml = isImage 
           ? `<img src="${icon}" alt="${c.nombre}" style="width:80px;height:80px;object-fit:contain;" loading="lazy">`
@@ -1693,7 +1693,7 @@ function viewEmpresaV5(ctx){
   const realImgs = Array.isArray(p.imagenes) ? p.imagenes : [];
   const mainSrc = (e.cover && e.cover.trim()) ? e.cover : (realImgs[0] || ph(1200, 675, e.nombre));
   const thumbs = realImgs.map((src,i)=>{
-    const isReal = String(src).startsWith('images/') || String(src).startsWith('/');
+    const isReal = String(src).startsWith('') || String(src).startsWith('/');
     const thumbSrc = isReal ? src : ph(640, 480, `${e.nombre} ${i+1}`);
     return `<button class="thumb" type="button" data-index="${i}" data-src="${src}" aria-current="${i===0?'true':'false'}" title="Imagen ${i+1}">
       <img loading="lazy" alt="Imagen ${i+1} de ${e.nombre}" src="${thumbSrc}">
@@ -2764,7 +2764,7 @@ function viewRegistrar(){
     'automotriz':['taller','repuestos','lubricentro'],
     'educacion':['academias','idiomas','computacion']
   };
-  const ICON = {'comida-bebida':'🍽️','hogar-ferreteria':'🛠️','tecnologia':'images/3524895.png','mascotas':'images/3524895.png','alquileres-espacios':'images/3524895.png','salud-belleza':'💊','educacion':'📚','servicios-profesionales':'🧑‍💼'};
+  const ICON = {'comida-bebida':'🍽️','hogar-ferreteria':'🛠️','tecnologia':'3524895.png','mascotas':'3524895.png','alquileres-espacios':'3524895.png','salud-belleza':'💊','educacion':'📚','servicios-profesionales':'🧑‍💼'};
 
   // Crea un nombre ficticio
   function nombreFalso(cat, loc, idx){
@@ -3674,7 +3674,7 @@ transition:transform .14s ease,box-shadow .14s ease;}
       {empresa:'Panadería Sol',categoria:'comida-bebida',title:'Descuento 20% en tortas',desc:'Solo por hoy hasta agotar stock.',images:['https://picsum.photos/seed/torta/800/500'],url:'file:///C:/Users/User/Desktop/ChesskingOwen/STUDIO%20CODE/integradorlocal/impulsolocal001.html#/empresa/e-001',verificada:true,price:'-20%'},
       {empresa:'Taller AutoPro',categoria:'servicios',title:'Cambio de aceite gratis',desc:'Al realizar mantenimiento completo.                          ',images:['https://picsum.photos/seed/auto/800/500'],url:'#',verificada:false},
       {empresa:'Florería Natura',categoria:'hogar',title:'Rosas premium',desc:'Entrega a domicilio en 2 horas solo por hoy contamos con el descuento del 80% en todos nuestros productos seleccionados, no esperes más y acercate a nuestras tiendas más cercanas.-------------------------------------------',images:['https://picsum.photos/seed/flores/800/500'],url:'#',verificada:true},
-      {empresa:'Jardín de Ida',categoria:'hogar',title:'Rosas premium',desc:'Entrega a domicilio en 2 horas.',images:['images/width_800.jpeg'],url:'#',verificada:true}
+      {empresa:'Jardín de Ida',categoria:'hogar',title:'Rosas premium',desc:'Entrega a domicilio en 2 horas.',images:['width_800.jpeg'],url:'#',verificada:true}
     ]);
   });
 })();
@@ -4688,8 +4688,8 @@ function renderLogo(empresa, size = 'normal') {
     const logo = e.logo || null;
     const icon = e.icon || '';
     
-    // Si tiene logo real que empiece con 'images/'
-    const tieneLogoReal = logo && String(logo).trim() && String(logo).startsWith('images/');
+    // Si tiene logo real que empiece con ''
+    const tieneLogoReal = logo && String(logo).trim() && String(logo).startsWith('');
     
     if (tieneLogoReal) {
       // Logo con imagen real
@@ -4710,7 +4710,7 @@ function renderLogo(empresa, size = 'normal') {
 function tarjetaGrid(e) {
   const nombre = e.nombre || e.name || 'Negocio';
   const logo = e.logo || null;
-  const tieneLogoReal = logo && String(logo).trim() && String(logo).startsWith('images/');
+  const tieneLogoReal = logo && String(logo).trim() && String(logo).startsWith('');
   const logoBackground = tieneLogoReal ? 'white' : 'linear-gradient(135deg, #0a7cff, #62d1ff)';
   const badge = e.verificada ? '<span class="badge">Verificada</span>' : '';
   
@@ -5329,7 +5329,7 @@ function tarjetaGrid(e) {
 
 <!-- Botón WhatsApp flotante (solo visible en páginas de empresa) -->
 <button id="btnWhatsAppFloat" aria-label="Chatear por WhatsApp">
-  <img src="images/logowhatsapp2.png" alt="WhatsApp Logo" />
+  <img src="logowhatsapp2.png" alt="WhatsApp Logo" />
 </button>
 
 <script>
@@ -5594,7 +5594,7 @@ function renderIcon(icon, size = '28px') {
   if (!icon) return '🏢';
   
   // Detectar si es una ruta de imagen
-  const isImage = icon.startsWith('images/') || icon.startsWith('http') || icon.includes('.png') || icon.includes('.jpg') || icon.includes('.svg');
+  const isImage = icon.startsWith('') || icon.startsWith('http') || icon.includes('.png') || icon.includes('.jpg') || icon.includes('.svg');
   
   if (isImage) {
     return `<img src="${icon}" alt="Icono" style="width:${size};height:${size};object-fit:contain;" loading="lazy">`;
