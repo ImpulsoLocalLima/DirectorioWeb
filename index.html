@@ -2941,10 +2941,7 @@ document.addEventListener('readystatechange', () => {
      BLOQUE PLUS 01 — LÓGICA DE INTERFAZ MARINO-JADE
   ====================================================== */
   document.addEventListener("DOMContentLoaded", () => {
-    const toggleBtn = document.createElement("button");
-    toggleBtn.className = "theme-toggle";
-    toggleBtn.innerHTML = "🌿<span>Interfaz</span>";
-    document.body.appendChild(toggleBtn);
+    
 
     const savedTheme = localStorage.getItem("impulsolocal_theme");
     if (savedTheme === "suave") {
@@ -6190,9 +6187,52 @@ function setupImageDescriptions(e, p){
   
 })();
 </script>
-
+<script>
+/* ============================================================
+   FORZAR TEMA VERDE-SUAVE PERMANENTE
+   Colocar al FINAL antes de </body>
+============================================================ */
+(function() {
+  // Forzar inmediatamente
+  document.documentElement.setAttribute("data-theme", "suave");
+  localStorage.setItem("impulsolocal_theme", "suave");
+  
+  // Vigilar y forzar continuamente
+  const observer = new MutationObserver(() => {
+    if (document.documentElement.getAttribute("data-theme") !== "suave") {
+      document.documentElement.setAttribute("data-theme", "suave");
+    }
+  });
+  
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"]
+  });
+  
+  // Forzar en cada cambio de hash (navegación SPA)
+  window.addEventListener("hashchange", () => {
+    document.documentElement.setAttribute("data-theme", "suave");
+  });
+  
+  // Forzar en cada carga
+  window.addEventListener("load", () => {
+    document.documentElement.setAttribute("data-theme", "suave");
+  });
+  
+  // Sobrescribir cualquier intento de cambiar el tema
+  Object.defineProperty(document.documentElement, "setAttribute", {
+    value: function(attr, value) {
+      if (attr === "data-theme" && value !== "suave") {
+        value = "suave";
+      }
+      return Element.prototype.setAttribute.call(this, attr, value);
+    }
+  });
+})();
+</script>
 <!-- ===================== SCRIPTS ===================== -->
   
   <script src="./funciones.js" defer></script>
 </body>
 </html>
+
