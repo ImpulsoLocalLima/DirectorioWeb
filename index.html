@@ -7,7 +7,6 @@
   <title>ImpulsoLocal — Directorio de negocios locales</title>
   <meta name="description" content="ImpulsoLocal: encuentra y conecta con negocios locales en Perú. Búsqueda rápida por rubros, ubicación y palabras clave." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Crect width='100%25' height='100%25' rx='24' fill='%230a7cff'/%3E%3Cpath d='M26 80 L64 22 L102 80 Z' fill='white'/%3E%3Ccircle cx='64' cy='86' r='10' fill='white'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="./estilos.css" />
   <style>
     /* ==========================
        ImpulsoLocal — Base CSS
@@ -373,7 +372,298 @@ textarea { resize:vertical; min-height:120px; }
 
 </head>
 <body>
+  <style>
+/* ============================================================
+   Efecto de transición amigable al cargar / recargar
+   ============================================================ */
+body {
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+}
+body.mostrando {
+  opacity: 1;
+}
+#overlay-transicion {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(10,124,255,0.15), rgba(0,0,0,0.8));
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+  z-index: 9999;
+  pointer-events: none;
+}
+#overlay-transicion.activo {
+  opacity: 1;
+}
+
+
+.fav-icon {
+  position: absolute;
+  top: 680px;
+  right: 32px;
+  font-size: 50px;
+  cursor: pointer;
+  color: #f1b952;
+  user-select: none;
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.fav-icon.fav-active {
+  color: #ffed4d;
+  transform: scale(0.6);
+}
+
+.fav-icon:hover {
+  transform: scale(0.8);
+}
+
+
+.redes-superiores {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 50;
+}
+
+.redes-superiores a {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  transition: transform .18s ease;
+}
+
+.redes-superiores a:hover {
+  transform: scale(1.15);
+}
+
+.redes-superiores img {
+  width: 20px;
+  height: 20px;
+}
+/* Ajuste para iconos que son imágenes */
+.cat-media img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
   
+}
+/* Soporte para iconos de imagen en categorías */
+.cat-media {
+  height: 84px;
+  background:
+    radial-gradient(120px 40px at 30% 40%, rgba(98,209,255,.25), transparent),
+    radial-gradient(160px 50px at 70% 20%, rgba(10,124,255,.25), transparent);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 48px;
+  font-weight: 800;
+}
+
+
+
+/* Si prefieres mantener los colores originales, comenta o elimina el filter */
+@media (prefers-color-scheme: light) {
+  .cat-media img {
+    filter: none; /* Mantener colores originales en modo claro */
+  }
+}
+/* Si prefieres mantener los colores originales de la imagen, comenta la línea de filter */
+
+
+
+
+
+
+
+
+
+/* ============================================
+   FORMATO SIMPLE Y LIMPIO PARA DESCRIPCIONES
+============================================ */
+
+/* Contenedor principal de descripción */
+#panelDesc .desc,
+#panelDesc p.desc {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #4a5568;
+  text-align: justify;
+  margin: 0;
+  padding: 0;
+}
+
+/* Espaciado entre párrafos */
+#panelDesc .desc br {
+  display: block;
+  content: "";
+  margin-bottom: 14px;
+}
+
+/* Descripción de imágenes de galería */
+#imageDescriptionText {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #5a6c7d;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  margin-top: 8px;
+  text-align: left;
+}
+
+/* Sin cursivas ni florituras */
+#imageDescriptionText.muted {
+  color: #9ca3af;
+  font-style: normal;
+}
+
+/* Negrita simple */
+#panelDesc .desc strong,
+#imageDescriptionText strong {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  #panelDesc .desc {
+    font-size: 14px;
+    line-height: 1.7;
+    text-align: left;
+  }
+  
+  #imageDescriptionText {
+    font-size: 13px;
+  }
+}
+
+/* Para tema verde-suave */
+[data-theme='suave'] #panelDesc .desc {
+  color: #4b5a24;
+}
+
+[data-theme='suave'] #imageDescriptionText {
+  color: #5a6c42;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme='suave'] strong {
+  color: #2e3220;
+}
+
+
+
+
+</style>
+<script>
+/* ============================================================
+   Fallback de navegación: recargar al cambiar de sección
+   (Evita quedarse con la vista vacía si los módulos no cargan)
+   ============================================================ */
+
+document.addEventListener('click', (ev) => {
+  const a = ev.target.closest('a[href^="#/"]');
+  if (a) {
+    ev.preventDefault();
+    const href = a.getAttribute('href');
+    // Forzar el cambio de hash + recarga completa
+    if (location.hash !== href) {
+      location.hash = href;
+    }
+    // 🔁 Espera un instante y recarga la página
+    setTimeout(() => {
+      location.reload();
+    }, 30);
+  }
+});
+</script>
+<script>
+/* ============================================================
+   Transición visual al navegar o recargar
+   ============================================================ */
+(function() {
+  // Crear el overlay de transición si no existe
+  let overlay = document.getElementById('overlay-transicion');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'overlay-transicion';
+    document.body.appendChild(overlay);
+  }
+
+  // Mostrar transición al cargar la página
+  window.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.add('mostrando');
+    overlay.classList.remove('activo');
+  });
+
+  // Mostrar una breve animación de salida antes de cambiar de sección
+  window.addEventListener('hashchange', () => {
+    overlay.classList.add('activo');
+    document.body.classList.remove('mostrando');
+    setTimeout(() => {
+      document.body.classList.add('mostrando');
+      overlay.classList.remove('activo');
+    }, 400); // Duración de la transición entre secciones
+  });
+
+  // Efecto también al recargar
+  window.addEventListener('pageshow', () => {
+    document.body.classList.add('mostrando');
+    overlay.classList.remove('activo');
+  });
+})();
+
+
+</script>
+
+
+<script>
+/* ============================================================
+   Simular un clic automático al cargar / navegar
+   (elimina el borde blanco de foco en títulos o enlaces)
+   ============================================================ */
+
+(function() {
+  function clickAutomatico() {
+    try {
+      // 🔹 Simula un clic en el body
+      const evt = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      });
+      document.body.dispatchEvent(evt);
+
+      // 🔹 También quita cualquier foco visual activo
+      if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
+
+      // 🔹 Borra cualquier selección residual
+      if (window.getSelection) {
+        const sel = window.getSelection();
+        if (sel && sel.removeAllRanges) sel.removeAllRanges();
+      }
+    } catch (e) {
+      console.warn('clickAutomatico:', e);
+    }
+  }
+
+  // Ejecutar al cargar y al cambiar de hash (navegar entre secciones)
+  window.addEventListener('load', () => setTimeout(clickAutomatico, 50));
+  window.addEventListener('hashchange', () => setTimeout(clickAutomatico, 50));
+})();
+</script>
 
 
     <a href="#app" class="skip-link">Saltar al contenido principal</a>
@@ -389,7 +679,7 @@ textarea { resize:vertical; min-height:120px; }
       <nav class="nav-links" aria-label="Accesos">
         <a href="#/categorias" title="Explorar por categorías">Categorías</a>
         <a href="#/favoritos" class="nav-minor">Favoritos</a>
-        <a href="#/sobre" class="nav-minor">Sobre</a>
+        
         
         <a href="#/registrar" class="nav-cta">Registrar negocio</a>
       </nav>
@@ -417,12 +707,11 @@ textarea { resize:vertical; min-height:120px; }
 
                 <label class="sr-only" for="loc">Ubicación</label>
                 <select id="loc" name="loc" class="select">
-                  <option value="">Todo el Perú</option>
-                  <option>Lima</option>
-                  <option>Arequipa</option>
-                  <option>Trujillo</option>
-                  <option>Piura</option>
-                  <option>Cusco</option>
+                  <option value="">Todo Lima</option>
+                  <option>San Miguel</option>
+                  <option>Bellavista</option>
+                  <option>Pueblo Libre</option>
+                  
                 </select>
 
                 <button class="btn" id="btnSearch" type="submit" title="Buscar ahora">
@@ -524,7 +813,7 @@ textarea { resize:vertical; min-height:120px; }
         <a href="#/sobre">Sobre</a>
         <a href="#/terminos">Términos</a>
         <a href="#/privacidad">Privacidad</a>
-        <a href="#/contacto">Contacto</a>
+        
       </nav>
       <div class="mono">v2.4 · </div>
     </div>
@@ -544,7 +833,7 @@ textarea { resize:vertical; min-height:120px; }
       categorias: [
         { id:'servicios-profesionales', nombre:'Servicios', icon:'14773849.png', total:0 },
         { id:'comida-bebida',           nombre:'Alimentos y Bebidas',       icon:'alimentos2.png', total:0 },
-        { id:'hogar-ferreteria',        nombre:'Hogar',    icon:'4203528.png', total:0 },
+        { id:'hogar',        nombre:'Hogar',    icon:'4203528.png', total:0 },
         { id:'salud-belleza',           nombre:'Salud y Bienestar',       icon:'1970972.png', total:0 },
         { id:'tecnologia',              nombre:'Productos Digitales y Tecnología',            icon:'productodigital.webp', total:0 },
         { id:'mascotas',                nombre:'Mascotas',              icon:'3047928.png', total:0 },
@@ -553,7 +842,7 @@ textarea { resize:vertical; min-height:120px; }
         { id:'ropa-accesorios',               nombre:'Ropa y Accesorios',             icon:'7695898.png', total:0 },
       ],
       empresas: [
-        { id:'e-001', nombre:'Jardín de Ida', cat:'comida-bebida', loc:'San Miguel', verificada:true, cover: 'anturio blanco.webp', 
+        { id:'e-001', nombre:'Jardín de Ida', cat:'hogar', loc:'San Miguel', verificada:true, cover: 'anturio blanco.webp', 
           // ⭐ NUEVO: Slogan personalizado
       slogan: 'Verde que inspira, vida que florece.',
          // ⭐ NUEVO: Banner superior
@@ -573,12 +862,12 @@ textarea { resize:vertical; min-height:120px; }
       ],
 
       descripciones: [
-  '🥤✨ ¡Refresca tu día con la mejor Chicha Morada! ✨🥤<br><br>➡️ Se vende Chicha Morada casera, natural y deliciosa.<br>📌 Precio: S/ 5 el litro<br>✅ 100% hecha en casa, con maíz morado y fruta fresca.<br>Atención de lunes a sabado … <br>Escríbenos al interno .<br>Ahora en envase no retornable...',
-  'Anturio rojo vibrante en maceta clásica.',
-  'Orquídea Phalaenopsis blanca, elegante y delicada.',
-  'Orquídeas rosas en maceta negra moderna.',
-  'Arreglo floral en tonos pastel.',
-  'Composición artística con flores tropicales.',
+  'Dale elegancia instantánea a tu espacio con esta planta de flores blancas estilo anturio. Su maceta metálica con diseño de corazones la convierte en el regalo perfecto y en un toque decorativo que ilumina cualquier ambiente.',
+  'Una opción clásica y versátil. Sus flores blancas y su maceta minimalista aportan frescura y armonía, ideal para oficinas, salas y dormitorios.',
+  'Vibrante y llamativa. Las flores rojas aportan energía y color, convirtiéndola en una pieza ideal para destacar en salas, recepciones o entradas.',
+  'Elegancia pura. Las orquídeas blancas, combinadas con una maceta negra moderna, ofrecen un estilo premium que realza cualquier espacio con un toque sofisticado.',
+  'Color intenso y presencia única. Estas orquídeas moradas son perfectas para quienes buscan una decoración distinguida y moderna. Un detalle que nunca pasa desapercibido.',
+  'Suaves, delicadas y llenas de vida. Las orquídeas rosadas son ideales para crear ambientes acogedores. Perfectas para regalar o decorar tu hogar con estilo.',
 ],
       descripcion:[
         
@@ -619,24 +908,740 @@ textarea { resize:vertical; min-height:120px; }
       
         },
 
-        { id:'e-002', nombre:'VetCare San Miguel',       cat:'mascotas',      loc:'Lima',    verificada:false },
-        { id:'e-003', nombre:'FerrePlus Pueblo Libre',   cat:'hogar-ferreteria', loc:'Lima',  verificada:true },
-        { id:'e-004', nombre:'Innova Web Studio',        cat:'tecnologia',    loc:'Arequipa',  verificada:true },
-        { id:'e-005', nombre:'Clínica Sonrisa',          cat:'salud-belleza', loc:'Trujillo',  verificada:false },
-        { id:'e-006', nombre:'Abogados Andinos',         cat:'servicios-profesionales', loc:'Lima',  verificada:false, 
-          telefono: '+51 936620504',
-          email: 'pasosdeungm@gmail.com',
-          
-        },
-        { id:'e-007', nombre:'AutoGlass Express',        cat:'automotriz', loc:'Lima',   verificada:true },
-        { id:'e-008', nombre:'Academia Brillante',       cat:'educacion', loc:'Piura',   verificada:false },
-        { id:'e-009', nombre:'Café Origen Norte',        cat:'comida-bebida', loc:'Piura',   verificada:false },
+        
       ]
     };
 
-   
+    // Completar conteos por categoría
+    (function hydrateCategoryTotals(){
+      const byCat = {};
+      for(const e of DATA.empresas){
+        byCat[e.cat] = (byCat[e.cat]||0)+1;
+      }
+      for(const c of DATA.categorias){
+        c.total = byCat[c.id]||0;
+      }
+    })();
+
+    // --- Helpers mínimos ---
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    function numberFmt(n){
+      return new Intl.NumberFormat('es-PE',{maximumFractionDigits:0}).format(n);
+    }
+
+    function navigateTo(hash){
+  if(location.hash !== hash) {
+    location.hash = hash;
+  } else {
+    Router.dispatch(); // 👈 fuerza render inmediato si es el mismo hash
+  }
+}
+
+    // --- Render Home: KPIs y Categorías ---
+    function renderKPIs(){
+      $('#kpiEmpresas').textContent = numberFmt(DATA.empresas.length);
+      $('#kpiCategorias').textContent = numberFmt(DATA.categorias.length);
+      
+    }
+
+    function renderCategoryOptions(){
+      const sel = $('#cat');
+      let opts = '<option value="">Todas las categorías</option>';
+      for(const c of DATA.categorias){
+        opts += `<option value="${c.id}">${c.nombre}</option>`;
+      }
+      sel.innerHTML = opts;
+    }
+
+    function catCardTemplate(c){
+  const href = `#/categoria/${c.id}`;
+  const iconHtml = renderIcon(c.icon, '80px'); // 👈 Usa la función helper
+  
+  return `
+  <a class="cat-card" href="${href}" data-cat="${c.id}" title="Ver ${c.nombre}">
+    <div class="cat-media">${iconHtml}</div>
+    <div class="cat-body">
+      <div>
+        <div style="font-weight:800">${c.nombre}</div>
+        <div style="font-size:12px; color:var(--muted)">${numberFmt(c.total)} negocios</div>
+      </div>
+      <span class="badge">Explorar</span>
+    </div>
+  </a>`;
+}
+
+    function renderCategoryPreview(){
+      const grid = $('#catGrid');
+      grid.innerHTML = DATA.categorias.slice(0.9).map(catCardTemplate).join('');
+    }
+
+    // --- Búsqueda (solo navegación; resultados en bloques siguientes) ---
+    function onSearchSubmit(ev){
+      ev.preventDefault();
+      const q = ($('#q').value || '').trim();
+      const cat = $('#cat').value;
+      const loc = $('#loc').value;
+      const params = new URLSearchParams();
+      if(q) params.set('q', q);
+      if(cat) params.set('cat', cat);
+      if(loc) params.set('loc', loc);
+      navigateTo(`#/buscar?${params.toString()}`);
+    }
+
+    function onQuickChip(ev){
+      const el = ev.target.closest('[data-quick]');
+      if(!el) return;
+      $('#q').value = el.getAttribute('data-quick');
+      $('#cat').value = '';
+      $('#loc').value = '';
+      $('#btnSearch').focus();
+    }
+
+    // --- Router mínimo (placeholder) ---
+    function hideAllViews(){
+      $('#home').classList.add('hide');
+      $('#view-listado').classList.add('hide');
+      $('#view-ficha').classList.add('hide');
+      $('#view-static').classList.add('hide');
+    }
+
+    
+
+    // --- Init ---
+    document.addEventListener('DOMContentLoaded', () => {
+      // Año footer
+      $('#year').textContent = new Date().getFullYear();
+
+      // Home
+      renderKPIs();
+      renderCategoryOptions();
+      renderCategoryPreview();
+
+      // Eventos
+      $('#searchForm').addEventListener('submit', onSearchSubmit);
+      document.body.addEventListener('click', onQuickChip);
+
+      // Router
+      
+    });
+  </script>
+  <!-- ======= BLOQUE 2: Router avanzado + Plantillas + Buscador/Utils ======= -->
+<script>
+/* ============================================================
+   ImpulsoLocal — Bloque 2
+   Router con rutas con parámetros, mini motor de plantillas,
+   utilidades (debounce, normalizador), y buscador cliente.
+   ============================================================ */
+
+/* ---------- Helpers de strings / normalización ---------- */
+const Str = (() => {
+  const rmDiacritics = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const toSearch = s => rmDiacritics(String(s||'').toLowerCase().trim().replace(/\s+/g,' '));
+  const slug = s => toSearch(s).replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+  const clamp = (n,min,max) => Math.max(min, Math.min(max, n));
+  return { rmDiacritics, toSearch, slug, clamp };
+})();
+
+/* ---------- Debounce / Throttle ---------- */
+function debounce(fn, wait=250){
+  let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(null,args), wait); };
+}
+function throttle(fn, wait=200){
+  let t=0; return (...args)=>{ const now=Date.now(); if(now-t>=wait){ t=now; fn.apply(null,args);} };
+}
+
+/* ---------- Mini templating ({{prop}} y {{=expr}}) ---------- */
+function tpl(str, ctx={}){
+  return String(str).replace(/\{\{\s*([^}]+)\s*\}\}/g, (_, key) => {
+    try{
+      if(key.startsWith('=')){ /* expresión JS: {{= a + b}} */
+        return Function(...Object.keys(ctx), `return (${key.slice(1)})`).apply(null, Object.values(ctx)) ?? '';
+      }
+      const path = key.split('.'); let v = ctx;
+      for(const p of path){ v = v?.[p]; if(v==null) break; }
+      return v ?? '';
+    }catch{ return ''; }
+  });
+}
+
+/* ---------- Render util (reemplazo seguro) ---------- */
+function renderHTML(el, html){
+  if(!el) return;
+  el.innerHTML = html;
+}
+
+/* ---------- Toasts livianos ---------- */
+const Toast = (() => {
+  let holder;
+  function ensure(){
+    if(!holder){
+      holder = document.createElement('div');
+      holder.style.position='fixed';
+      holder.style.inset='auto 0 24px 0';
+      holder.style.display='grid';
+      holder.style.placeItems='center';
+      holder.style.pointerEvents='none';
+      holder.style.zIndex='60';
+      document.body.appendChild(holder);
+    }
+  }
+  function show(msg, type='info'){
+    ensure();
+    const card = document.createElement('div');
+    card.textContent = msg;
+    card.style.pointerEvents='auto';
+    card.style.maxWidth='92vw';
+    card.style.background='var(--surface)';
+    card.style.border='1px solid rgba(255,255,255,.10)';
+    card.style.padding='10px 14px';
+    card.style.borderRadius='12px';
+    card.style.boxShadow='var(--shadow)';
+    card.style.color= type==='error' ? 'var(--err)' : (type==='ok' ? 'var(--ok)' : 'inherit');
+    card.style.margin='8px';
+    holder.appendChild(card);
+    setTimeout(()=>card.remove(), 2500);
+  }
+  return { show };
+})();
+
+/* ---------- Loading skeleton helpers ---------- */
+function setLoadingGrid(el, count=6){
+  if(!el) return;
+  el.innerHTML = Array.from({length:count}).map(()=>'<div class="skeleton" style="min-height:120px;border-radius:16px"></div>').join('');
+}
+
+/* ---------- Query string utils ---------- */
+function parseQS(qs=''){
+  const out = {};
+  const sp = new URLSearchParams(qs.startsWith('?')? qs.slice(1) : qs);
+  for(const [k,v] of sp.entries()){ out[k]=v; }
+  return out;
+}
+function toQS(obj){
+  const sp = new URLSearchParams();
+  Object.entries(obj||{}).forEach(([k,v])=>{ if(v!=null && v!=='') sp.set(k,v); });
+  const s = sp.toString();
+  return s ? `?${s}` : '';
+}
+
+/* ---------- Paginación ---------- */
+function paginate(arr, page=1, per=12){
+  const total = arr.length;
+  const pages = Math.max(1, Math.ceil(total/per));
+  const p = Str.clamp(page, 1, pages);
+  const start = (p-1)*per;
+  const slice = arr.slice(start, start+per);
+  return { items: slice, page: p, pages, per, total, start, end: start + slice.length };
+}
+
+/* ---------- Índice de búsqueda ---------- */
+const Search = (() => {
+  let INDEX = [];
+  function buildIndex(){
+    INDEX = DATA.empresas.map(e => ({
+      id: e.id,
+      cat: e.cat,
+      loc: e.loc,
+      rating: e.rating||0,
+      reviews: e.reviews||0,
+      verificada: !!e.verificada,
+      name: e.nombre,
+      imgpresentacion: e.imgpresentacion || null,
+      
+      descrip: e.descrip|| '',
+       logo: e.logo || null,
+       slogan: e.slogan || '',
+       breve: e.breve || '',
+       subcat: e.subcat || '',
+      text: Str.toSearch([e.nombre, e.loc, e.cat].join(' ')),
+    }));
+  }
+  function byRank(a,b){
+    // Orden: verificada desc, rating desc, reviews desc, nombre asc
+    if(+b.verificada - +a.verificada !== 0) return +b.verificada - +a.verificada;
+    if(b.rating - a.rating !== 0) return b.rating - a.rating;
+    if(b.reviews - a.reviews !== 0) return b.reviews - a.reviews;
+    return a.name.localeCompare(b.name,'es');
+  }
+  function matchQuery(q){
+    if(!q) return () => true;
+    const qq = Str.toSearch(q);
+    const terms = qq.split(' ').filter(Boolean);
+    return (row)=>{
+      const txt = row.text;
+      return terms.every(t => txt.includes(t));
+    };
+  }
+  function search({q='', cat='', loc='', sort='rank'}={}){
+    let rows = INDEX.slice();
+    const predicate = matchQuery(q);
+    rows = rows.filter(r => predicate(r));
+    if(cat) rows = rows.filter(r => r.cat===cat);
+    if(loc) rows = rows.filter(r => r.loc===loc);
+    if(sort==='alpha'){ rows.sort((a,b)=>a.name.localeCompare(b.name,'es')); }
+    else if(sort==='rating'){ rows.sort((a,b)=> (b.rating - a.rating) || (b.reviews - a.reviews)); }
+    else { rows.sort(byRank); }
+    return rows;
+  }
+  // Inicializa al cargar
+  buildIndex();
+  return { buildIndex, search };
+})();
+
+/* ---------- Componente Breadcrumbs (migas) ---------- */
+function breadcrumbs(items){
+  const parts = items.map((it,i)=>{
+    const isLast = i===items.length-1;
+    return `<a ${it.href && !isLast ? `href="${it.href}"`:'role="link"'} class="chip" style="text-decoration:none;${isLast?'opacity:.9;font-weight:700':''}">
+      ${it.icon? it.icon+' ' : ''}${it.label}
+    </a>`;
+  }).join(' ');
+  return `<nav aria-label="migas" style="display:flex;gap:8px;flex-wrap:wrap">${parts}</nav>`;
+}
+
+/* ---------- Tarjeta de empresa (compacta) ---------- */
+function companyCard(e){
+  const badge = e.verificada ? `<span class="badge" title="Empresa verificada">Verificada</span>` : '';
+  const revs = `<span class="chip" >${e.reviews ?? 0} </span>`;
+  const loc = `<span class="chip" title="Ubicación">📍 ${e.loc}</span>`;
+  
+  // ✅ Logo REAL como en la ficha
+  const logo = e.logo || null;
+  const icon = e.icon || '🏢';
+  
+  const logoHtml = logo && logo.trim() 
+    ? `<img src="${logo}" alt="Logo de ${e.nombre}" loading="lazy" 
+         style="width:100%;height:100%;object-fit:cover;border-radius:12px;background:white;padding:4px;"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+       <div style="display:none;font-size:32px;">${icon}</div>`
+    : `<div style="font-size:32px;">${icon}</div>`;
+  
+  return `
+  <article class="card-company">
+    <header class="card-head">
+      <div class="card-logo" style="width:60px;height:60px;border-radius:12px;display:grid;place-items:center;background:conic-gradient(from 180deg,var(--brand),var(--brand-2),var(--brand));box-shadow:inset 0 0 0 2px rgba(255,255,255,.14);flex-shrink:0;">
+        ${logoHtml}
+        ${e.verificada ? '<span style="position:absolute;bottom:-3px;right:-3px;width:20px;height:20px;background:linear-gradient(135deg,#10b981,#34d399);border-radius:50%;display:grid;place-items:center;font-size:11px;box-shadow:0 2px 6px rgba(16,185,129,.4);border:2px solid white;z-index:2;">✓</span>' : ''}
+      </div>
+      <div class="card-title">
+        <a href="#/empresa/${e.id}" style="font-weight:900;letter-spacing:.2px">${e.nombre}</a>
+        ${e.slogan ? `<p class="empresa-slogan" style="font-size:13px;font-style:italic;color:var(--muted);margin:4px 0 6px 0;line-height:1.3;font-weight:500;">${e.slogan}</p>` : ''}
+        <div class="card-badges">${badge}</div>
+      </div>
+    </header>
+    <div class="card-body">
+      <p style="margin:0;color:var(--muted);font-size:13px">${e.breve||'Negocio local cercano a ti.'}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${revs}${loc}</div>
+      <div class="card-actions">
+        <a class="btn" href="#/empresa/${e.id}">Ver más</a>
+        <a class="btn btn-ghost" href="#/categoria/${e.cat}">Ver categoría</a>
+      </div>
+    </div>
+  </article>`;
+}
+
+/* ---------- Grilla de resultados (reutilizable) ---------- */
+function renderGrid(list, targetSel){
+  const target = typeof targetSel==='string' ? document.querySelector(targetSel) : targetSel;
+  if(!target) return;
+  if(!list?.length){
+    target.innerHTML = `
+      <div class="section">
+        <h3>Sin resultados</h3>
+        <p class="lead">No encontramos negocios que coincidan. Ajusta los filtros o intenta con otras palabras.</p>
+        <a href="#/" class="btn">⬅ Volver al inicio</a>
+      </div>`;
+    return;
+  }
+  
+  // ✅ Renderizar cada empresa con logo y slogan
+  const html = list.map(e => {
+    const badge = e.verificada ? `<span class="badge">Verificada</span>` : '';
+    const logo = e.logo || null;
+    const icon = e.icon || '🏢';
+    
+    // Logo HTML
+    const logoHtml = logo && logo.trim() 
+      ? `<img src="${logo}" alt="${e.nombre}" 
+           style="width:100%;height:100%;object-fit:cover;border-radius:12px;background:white;padding:4px;"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='grid';">
+         <span style="display:none;font-size:32px;">${icon}</span>`
+      : `<span style="font-size:32px;">${icon}</span>`;
+    
+    return `
+    <article class="card-company">
+      <header class="card-head">
+        <div class="card-logo" style="width:64px;height:64px;border-radius:14px;overflow:hidden;display:grid;place-items:center;background:conic-gradient(from 180deg,var(--brand),var(--brand-2),var(--brand));box-shadow:inset 0 0 0 2px rgba(255,255,255,.14);position:relative;flex-shrink:0;">
+          ${logoHtml}
+          ${e.verificada ? '<span style="position:absolute;bottom:-3px;right:-3px;width:20px;height:20px;background:linear-gradient(135deg,#10b981,#34d399);border-radius:50%;display:grid;place-items:center;font-size:11px;color:white;">✓</span>' : ''}
+        </div>
+        <div class="card-title" style="flex:1;">
+          <a href="#/empresa/${e.id}" style="font-weight:900;">${e.nombre}</a>
+          ${e.slogan ? `<div style="font-size:13px;font-style:italic;color:var(--muted);margin-top:4px;">${e.slogan}</div>` : ''}
+          <div class="card-badges">${badge}</div>
+        </div>
+      </header>
+      <div class="card-body">
+        <p style="margin:0;color:var(--muted);font-size:13px;">${e.breve || 'Negocio local'}</p>
+        <div style="margin-top:8px;">
+          <span class="chip">📍 ${e.loc}</span>
+        </div>
+        <div class="card-actions" style="margin-top:10px;">
+          <a class="btn" href="#/empresa/${e.id}">Ver más</a>
+          <a class="btn btn-ghost" href="#/categoria/${e.cat}">Ver categoría</a>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+  
+  target.innerHTML = `<div class="cat-grid">${html}</div>`;
+}
+
+/* ---------- Controles de paginación ---------- */
+function pagerControls(state, onNav){
+  const {page,pages} = state;
+  const btn = (p,label,disabled=false)=>`
+    <button class="btn ${disabled?'btn-ghost':''}" data-page="${p}" ${disabled?'disabled':''} style="min-width:46px">${label}</button>`;
+  const range = [];
+  const start = Math.max(1, page-2);
+  const end = Math.min(pages, page+2);
+  for(let i=start;i<=end;i++){ range.push(i); }
+  const html = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end;margin-top:14px">
+      ${btn(page-1,'‹', page<=1)}
+      ${range.map(i => btn(i, i, i===page)).join('')}
+      ${btn(page+1,'›', page>=pages)}
+    </div>`;
+  const wrap = document.createElement('div');
+  wrap.innerHTML = html;
+  wrap.addEventListener('click', (ev)=>{
+    const p = Number(ev.target?.dataset?.page||0);
+    if(p){ onNav(p); }
+  }, {once:false});
+  return wrap.firstElementChild;
+}
+
+/* ---------- Router con patrones ---------- */
+const Router = (() => {
+  const routes = [];
+  function pathToRegex(path){
+    const keys = [];
+    const regexStr = path.replace(/\/:\w+/g, (m)=>{ keys.push(m.slice(2)); return '/([^/]+)'; });
+    return { regex: new RegExp(`^${regexStr}$`), keys };
+  }
+  function add(path, handler){
+    const {regex, keys} = pathToRegex(path);
+    routes.push({ path, regex, keys, handler });
+  }
+  function match(pathname){
+    for(const r of routes){
+      const m = pathname.match(r.regex);
+      if(m){
+        const params = {};
+        r.keys.forEach((k, i)=> params[k] = decodeURIComponent(m[i+1]||''));
+        return { handler: r.handler, params };
+      }
+    }
+    return null;
+  }
+  function go(hash){
+  if (location.hash !== hash) {
+    location.hash = hash;
+  } else {
+    dispatch(); // 🔧 ejecuta el render inmediato si es el mismo hash
+  }
+}
+  function dispatch(){
+    const raw = location.hash || '#/';
+    const [p, qs] = raw.replace(/^#/, '').split('?');
+    const found = match(p||'/');
+    hideAllViews();
+    if(found){
+      const ctx = { path:p||'/', qs: parseQS(qs||''), params: found.params };
+      found.handler(ctx);
+    }else{
+      // 404 → estática simple
+      $('#view-static').classList.remove('hide');
+      renderHTML($('#view-static'), `<h2>Página no encontrada</h2><p><a href="#/">Volver</a></p>`);
+    }
+  }
+  window.addEventListener('hashchange', dispatch);
+  return { add, go, dispatch };
+
+})();
+
+/* ---------- Vistas (handlers de rutas) ---------- */
+function viewHome(){
+  $('#home').classList.remove('hide');
+}
+function viewBuscar(ctx){
+  const container = $('#view-listado');
+  container.classList.remove('hide');
+  setLoadingGrid(container, 12);
+  const { q='', cat='', loc='', sort='rank', page='1' } = ctx.qs;
+  const rows = Search.search({ q, cat, loc, sort });
+  const state = paginate(rows, Number(page)||1, 12);
+  const title = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <h2 style="margin:0">Resultados de búsqueda</h2>
+        <p class="lead" style="margin:4px 0 0 0"><strong>${state.total}</strong> resultados
+          ${q? ` para "<span class="mono">${q.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>"` : ''}</p>
+      </div>
+      <div>
+        <label class="sr-only" for="sortSel">Ordenar</label>
+        <select id="sortSel" class="select">
+          <option value="rank"${sort==='rank'?' selected':''}></option>
+          <option value="rating"${sort==='rating'?' selected':''}>Mejor calificados</option>
+          <option value="alpha"${sort==='alpha'?' selected':''}>A–Z</option>
+        </select>
+      </div>
+    </div>
+    ${breadcrumbs([
+      {label:'Inicio', href:'#/', icon:'🏠'},
+      {label:'Buscar', href:`#/buscar${toQS({q,cat,loc,sort,page})}`}
+    ])}
+  `;
+  // Render de contenido
+  setTimeout(()=>{ // pequeño retardo para que se aprecie el skeleton
+    container.innerHTML = title + `<div id="gridRes" class="section" style="padding-top:12px"></div>`;
+    renderGrid(state.items, '#gridRes');
+    const pag = pagerControls(state, (p)=>{
+      const qs = toQS({ q, cat, loc, sort, page: p });
+      Router.go(`#/buscar${qs}`);
+    });
+    container.appendChild(pag);
+    $('#sortSel').addEventListener('change', (e)=>{
+      const qs2 = toQS({ q, cat, loc, sort: e.target.value, page: 1 });
+      Router.go(`#/buscar${qs2}`);
+    });
+  }, 240);
+}
+function viewCategoria(ctx){
+  const { id } = ctx.params;
+  const cat = DATA.categorias.find(c=>c.id===id);
+  const container = $('#view-listado');
+  container.classList.remove('hide');
+  setLoadingGrid(container, 12);
+  const all = Search.search({ q:'', cat:id, loc: ctx.qs.loc||'', sort: ctx.qs.sort || 'rank' });
+  const state = paginate(all, Number(ctx.qs.page||1), 12);
+  setTimeout(()=>{
+    const header = `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <h2 style="margin:0">${cat? cat.nombre : 'Categoría'}</h2>
+          <p class="lead" style="margin:4px 0 0 0">${state.total} negocios</p>
+        </div>
+        <div>
+          <select id="sortCat" class="select">
+            <option value="rank"${(ctx.qs.sort||'rank')==='rank'?' selected':''}>Relevancia</option>
+            <option value="rating"${ctx.qs.sort==='rating'?' selected':''}>Mejor calificados</option>
+            <option value="alpha"${ctx.qs.sort==='alpha'?' selected':''}>A–Z</option>
+          </select>
+        </div>
+      </div>
+      ${breadcrumbs([
+        {label:'Inicio', href:'#/', icon:'🏠'},
+        {label:'Categorías', href:'#/categorias', icon:'🗂️'},
+        {label: cat? cat.nombre : id }
+      ])}
+    `;
+    container.innerHTML = header + `<div id="gridCat" class="section" style="padding-top:12px"></div>`;
+    renderGrid(state.items, '#gridCat');
+    const pag = pagerControls(state, (p)=>{
+      const qs = toQS({ page: p, sort: ctx.qs.sort||'rank', loc: ctx.qs.loc||'' });
+      Router.go(`#/categoria/${id}${qs}`);
+    });
+    container.appendChild(pag);
+    $('#sortCat').addEventListener('change', (e)=>{
+      const qs2 = toQS({ page:1, sort: e.target.value, loc: ctx.qs.loc||'' });
+      Router.go(`#/categoria/${id}${qs2}`);
+    });
+  }, 220);
+}
+
+
+
+
+/* ---------- Registrar rutas (VERSIÓN FINAL Y DIRECTA) ---------- */
+Router.add('/',        () => viewHome());
+Router.add('/buscar',  (ctx) => viewBuscarV4(ctx)); // Usa la V4 del Bloque 4
+Router.add('/categorias', () => viewCategoriasHub()); // Usa la del Bloque 3
+Router.add('/categoria/:id', (ctx) => viewCategoriaV4(ctx)); // Usa la V4 del Bloque 4
+
+// --- Reemplazo directo de placeholders ---
+// En lugar de llamar a viewEmpresa y viewStatic, llamamos directamente a las funciones de los Bloques 5 y 6
+Router.add('/empresa/:id',   (ctx) => viewEmpresaV5(ctx));
+Router.add('/sobre',     () => viewSobre());
+Router.add('/terminos',  () => viewTerminos());
+Router.add('/privacidad',() => viewPrivacidad());
+Router.add('/favoritos',   () => viewFavoritos());
+Router.add('/registrar', () => viewRegistrar());
+
+/* ---------- Integración con el buscador del Home ---------- */
+(function enhanceHomeSearch(){
+  const input = $('#q');
+  if(!input) return;
+
+  // Autocomplete simple (chips dinámicos basados en DATA)
+  let hintBox;
+  function ensureHint(){
+    if(hintBox) return hintBox;
+    hintBox = document.createElement('div');
+    hintBox.setAttribute('role','listbox');
+    hintBox.style.position='absolute';
+    hintBox.style.background='var(--surface)';
+    hintBox.style.border='1px solid rgba(255,255,255,.08)';
+    hintBox.style.borderRadius='12px';
+    hintBox.style.boxShadow='var(--shadow)';
+    hintBox.style.marginTop='6px';
+    hintBox.style.padding='6px';
+    hintBox.style.zIndex='40';
+    hintBox.style.display='none';
+    input.parentElement.style.position='relative';
+    input.parentElement.appendChild(hintBox);
+    document.addEventListener('click', (ev)=>{
+      if(!hintBox.contains(ev.target) && ev.target!==input){ hintBox.style.display='none'; }
+    });
+    return hintBox;
+  }
+
+  function renderHints(value){
+    const hb = ensureHint();
+    const q = value.trim();
+    if(!q){ hb.style.display='none'; return; }
+    const list = Search.search({ q }).slice(0,6);
+    if(!list.length){ hb.style.display='none'; return; }
+    hb.innerHTML = list.map(r=>`
+      <button type="button" role="option" class="chip" style="width:100%;justify-content:flex-start;margin:2px 0" data-fill="${r.name}">
+        🔎 ${r.name} · <span class="mono" style="opacity:.8">${r.loc}</span>
+      </button>`).join('');
+    hb.style.display='block';
+    hb.onclick = (e)=>{
+      const b = e.target.closest('[data-fill]');
+      if(!b) return;
+      input.value = b.dataset.fill;
+      hb.style.display='none';
+      $('#btnSearch').click();
+    };
+  }
+
+  input.addEventListener('input', debounce((e)=> renderHints(e.target.value), 180));
+})();
+
+/* ---------- Exponer App (para próximos bloques) ---------- */
+window.App = {
+  Router, Search, tpl, renderHTML, Str, paginate, renderGrid,
+  Toast, parseQS, toQS
+};
+
+// Despachar ruta actual (sobrescribe el renderRoute simple del bloque 1)
+document.addEventListener('DOMContentLoaded', () => {
+  Router.dispatch();
+});
+
+
 </script>
 <!-- ======= BLOQUE 3: Listados por Categoría + Grid + Filtros + Paginación UI ======= -->
+<style>
+  /* ==========================
+     Bloque 3 — Estilos de listados
+     ========================== */
+
+  /* Toolbar de filtros/orden */
+  .toolbar{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; flex-wrap:wrap; background:linear-gradient(180deg,var(--surface),var(--surface-2));
+    border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:10px; box-shadow:var(--shadow-sm);
+  }
+  @media (prefers-color-scheme: light){ .toolbar{border-color: rgba(16,24,40,.08)}}
+  .toolbar .left, .toolbar .right{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .pill{
+    display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px;
+    border:1px solid rgba(255,255,255,.08); background:var(--surface-2); color:var(--muted); font-size:13px;
+  }
+  @media (prefers-color-scheme: light){ .pill{border-color: rgba(16,24,40,.08)}}
+  .pill strong{ color:var(--text); letter-spacing:.2px }
+  .switch{
+    --h: 24px;
+    position:relative; width: 46px; height: var(--h); background: var(--surface-2);
+    border:1px solid rgba(255,255,255,.08); border-radius: 999px; cursor:pointer;
+    display:inline-block; vertical-align:middle;
+  }
+  .switch::after{
+    content:''; position:absolute; top:2px; left:2px; width: calc(var(--h) - 4px); height: calc(var(--h) - 4px);
+    background: linear-gradient(180deg, #fff, #e9edf5); border-radius:50%; transition:left .15s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,.25), inset 0 0 0 1px rgba(0,0,0,.04);
+  }
+  .switch[data-on="1"]{ background: linear-gradient(180deg, var(--brand-2), var(--brand)); }
+  .switch[data-on="1"]::after{ left: calc(100% - var(--h) + 2px); }
+
+  .toolbar .select, .toolbar .input{
+    min-width: 160px;
+  }
+  .toolbar .btn{ padding:10px 12px; }
+
+  /* Grid más denso para listados */
+  .grid-list{
+    display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px;
+  }
+  @media (max-width:1160px){ .grid-list{grid-template-columns: repeat(3, 1fr)}}
+  @media (max-width:820px){ .grid-list{grid-template-columns: repeat(2, 1fr)}}
+  @media (max-width:520px){ .grid-list{grid-template-columns: 1fr}}
+
+  /* Tarjeta refinada para empresa */
+  .card-company{
+    position:relative; overflow:hidden; border-radius:16px;
+    background:linear-gradient(180deg, var(--surface), var(--surface-2));
+    border:1px solid rgba(255,255,255,.06);
+    display:flex; flex-direction:column; min-height: 180px;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .card-company:hover{ transform: translateY(-2px); box-shadow: var(--shadow) }
+  @media (prefers-color-scheme: light){ .card-company{border-color: rgba(16,24,40,.08)}}
+
+  .card-head{
+    display:flex; align-items:center; gap:12px; padding:12px; border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  @media (prefers-color-scheme: light){ .card-head{border-bottom-color: rgba(16,24,40,.08)}}
+  .card-logo{
+    width:48px; height:48px; border-radius:12px; display:grid; place-items:center; color:white; font-weight:900;
+    background: conic-gradient(from 180deg at 50% 50%, var(--brand), var(--brand-2), var(--brand));
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.14);
+    flex: none;
+  }
+  .card-title{
+    flex:1;
+  }
+  .card-title a{ font-weight:900; letter-spacing:.2px; }
+  .card-badges{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+  .card-body{
+    padding:12px; display:flex; flex-direction:column; gap:10px;
+  }
+  .card-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+  /* Breadcrumbs más sutil */
+  .breadcrumbs{ display:flex; gap:8px; flex-wrap:wrap; }
+  .breadcrumbs .chip{ background: var(--surface-2); }
+  .breadcrumbs .chip[aria-current="page"]{ font-weight:800; opacity:.95 }
+
+  /* Paginador */
+  .pager{
+    display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap; margin-top:14px;
+  }
+  .pager .btn[disabled]{ opacity:.65; cursor:not-allowed; transform:none }
+  .pager .btn.btn-ghost[disabled]{ opacity:.45 }
+
+  /* Vista de Categorías /hub */
+  .cats-hub .cat-card{ min-height:140px }
+  .cats-hub .cat-media{ height:72px; font-size:30px }
+  .cats-hub .cat-body{ padding:14px }
+</style>
 
 <script>
 /* ============================================================
@@ -854,7 +1859,7 @@ function renderToolbar({context='buscar', st, cat=null}){
     <div class="right">
       <label class="sr-only" for="selSort">Ordenar</label>
       <select id="selSort" class="select">
-        <option value="rank"${st.sort==='rank'?' selected':''}>Relevancia</option>
+        <option value="rank"${st.sort==='rank'?' selected':''}></option>
         <option value="rating"${st.sort==='rating'?' selected':''}>Mejor calificados</option>
         <option value="alpha"${st.sort==='alpha'?' selected':''}>A–Z</option>
       </select>
@@ -1081,7 +2086,78 @@ function viewCategoriasHub(){
 
 </script>
 <!-- ======= BLOQUE 4: Buscador Global Mejorado (UX, resaltado, recientes, vista lista/grid, compartir) ======= -->
+<style>
+  /* ==========================
+     Bloque 4 — Estilos buscador avanzado
+     ========================== */
 
+  /* Barra de resultados (stats + acciones) */
+  .results-bar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    background:linear-gradient(180deg,var(--surface),var(--surface-2));
+    border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:10px; box-shadow:var(--shadow-sm);
+  }
+  @media (prefers-color-scheme: light){ .results-bar{border-color: rgba(16,24,40,.08)}}
+  .results-bar .stats{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .results-bar .actions{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .q-pill{
+    display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px;
+    background:var(--surface-2); border:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:12px;
+  }
+  @media (prefers-color-scheme: light){ .q-pill{border-color: rgba(16,24,40,.08)}}
+  .q-pill strong{ color:var(--text) }
+
+  .view-toggle{
+    display:inline-flex; background:var(--surface-2); border:1px solid rgba(255,255,255,.08); border-radius:10px; overflow:hidden;
+  }
+  .view-toggle button{
+    border:0; background:transparent; padding:8px 10px; cursor:pointer; font-weight:700; min-width:46px;
+  }
+  .view-toggle button[aria-pressed="true"]{ background:linear-gradient(180deg,var(--brand-2),var(--brand)); color:#fff }
+
+  /* Vista lista (alternativa a grid) */
+  .list-view{ display:grid; gap:10px }
+  .list-item{
+    display:grid; grid-template-columns:60px 1fr auto; gap:12px; align-items:center;
+    background:linear-gradient(180deg,var(--surface),var(--surface-2)); border:1px solid rgba(255,255,255,.06);
+    border-radius:14px; padding:10px;
+  }
+  @media (max-width:620px){ .list-item{ grid-template-columns:48px 1fr } .list-item .cta{ display:none } }
+  .list-item .logo{ width:60px; height:60px; border-radius:12px; display:grid; place-items:center; background:conic-gradient(from 180deg, var(--brand), var(--brand-2), var(--brand)); color:#fff; font-weight:900 }
+  .list-item .meta{ display:flex; gap:8px; flex-wrap:wrap }
+  .list-item .title{ font-weight:900; letter-spacing:.2px }
+  .list-item .desc{ color:var(--muted); font-size:13px; margin-top:2px }
+
+  /* Resaltado de coincidencias */
+  .hl{ background: linear-gradient(180deg, rgba(98,209,255,.35), rgba(10,124,255,.20)); border-radius:6px; padding:0 2px }
+
+  /* Recientes / guardados */
+  .recent-wrap{ margin-top:10px; display:flex; flex-wrap:wrap; gap:8px }
+  .recent-title{ color:var(--muted); font-size:13px }
+  .recent-chip{
+    display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px;
+    background:var(--surface); border:1px solid rgba(255,255,255,.08); cursor:pointer;
+  }
+  .recent-chip .del{ opacity:.7; cursor:pointer }
+  .recent-chip:hover{ transform: translateY(-1px) }
+  @media (prefers-color-scheme: light){ .recent-chip{border-color: rgba(16,24,40,.08)}}
+
+  /* Botón "cargar más" */
+  .load-more-wrap{ display:grid; place-items:center; margin-top:14px }
+  .btn-outline{
+    background:transparent; color:var(--brand); border:1px solid var(--brand); box-shadow:none;
+  }
+
+  /* Estado vacío con sugerencias */
+  .empty{
+    border:1px dashed rgba(255,255,255,.18); border-radius:16px; padding:18px; text-align:center; color:var(--muted);
+  }
+  @media (prefers-color-scheme: light){ .empty{border-color: rgba(16,24,40,.18)}}
+  .empty .sugs{ margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center }
+
+  /* Accesibilidad: enfoque visible en interacciones clave */
+  a:focus, button:focus, select:focus, input:focus{ outline:none; box-shadow: var(--ring) }
+</style>
 
 <script>
 /* ============================================================
@@ -1321,7 +2397,7 @@ function viewBuscarV4(ctx){
       <div class="actions">
         <label class="sr-only" for="selSortV4">Ordenar</label>
         <select id="selSortV4" class="select">
-          <option value="rank"${init.sort==='rank'?' selected':''}>Relevancia</option>
+          <option value="rank"${init.sort==='rank'?' selected':''}></option>
           <option value="rating"${init.sort==='rating'?' selected':''}>Mejor calificados</option>
           <option value="alpha"${init.sort==='alpha'?' selected':''}>A–Z</option>
         </select>
@@ -1453,7 +2529,7 @@ function viewCategoriaV4(ctx){
       </div>
       <div class="actions">
         <select id="selSortCatV4" class="select">
-          <option value="rank"${init.sort==='rank'?' selected':''}>Relevancia</option>
+          <option value="rank"${init.sort==='rank'?' selected':''}></option>
           <option value="rating"${init.sort==='rating'?' selected':''}>Mejor calificados</option>
           <option value="alpha"${init.sort==='alpha'?' selected':''}>A–Z</option>
         </select>
@@ -1542,7 +2618,140 @@ function viewCategoriaV4(ctx){
 
 </script>
 <!-- ======= BLOQUE 5: Ficha de Empresa (galería, info, chips, formulario de contacto) ======= -->
+<style>
+  /* ==========================
+     Bloque 5 — Estilos Ficha
+     ========================== */
 
+  .ficha{
+    display:grid; grid-template-columns: 1.1fr .9fr; gap:14px;
+  }
+  @media (max-width: 980px){ .ficha{ grid-template-columns: 1fr } }
+
+  /* Header de ficha */
+  .ficha-head{
+    display:flex; align-items:center; gap:12px; background:linear-gradient(180deg,var(--surface),var(--surface-2));
+    border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:12px; box-shadow:var(--shadow-sm);
+  }
+  @media (prefers-color-scheme: light){ .ficha-head{border-color: rgba(16,24,40,.08)}}
+  .ficha-logo{ width:60px; height:60px; border-radius:14px; display:grid; place-items:center; font-weight:900; color:#fff;
+    background: conic-gradient(from 180deg at 50% 50%, var(--brand), var(--brand-2), var(--brand));
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.14);
+  }
+  .ficha-title{ flex:1 }
+  .ficha-title h1{ margin:0; font-size:clamp(20px, 4vw, 28px); line-height:1.1; letter-spacing:.2px }
+  .stars{ display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap }
+  .stars .chip{ background: var(--surface-2) }
+  .verify{ display:inline-flex; gap:8px; align-items:center; font-weight:700 }
+  .verify .badge{ box-shadow:none }
+
+  /* Galería */
+  .gallery{
+    background:linear-gradient(180deg,var(--surface),var(--surface-2));
+    border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:10px; box-shadow:var(--shadow-sm);
+  }
+  @media (prefers-color-scheme: light){ .gallery{border-color: rgba(16,24,40,.08)}}
+  .gallery-main{
+    aspect-ratio: 14/9; border-radius:16px; overflow:hidden; position:relative;
+    background:
+      radial-gradient(360px 180px at 20% 20%, rgba(98,209,255,.25), transparent),
+      radial-gradient(360px 180px at 80% 0%, rgba(10,124,255,.25), transparent),
+      linear-gradient(180deg, var(--surface), var(--surface-2));
+    border:1px solid rgba(255,255,255,.06);
+  }
+  .gallery-thumbs{
+    display:grid; grid-template-columns: repeat(6, 1fr); gap:10px; margin-top:10px;
+  }
+  @media (max-width: 720px){ .gallery-thumbs{ grid-template-columns: repeat(4,1fr) } }
+  .thumb{
+    aspect-ratio: 4/3; border-radius:10px; overflow:hidden; cursor:pointer; border:1px solid rgba(255,255,255,.06);
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+  }
+  .thumb[aria-current="true"]{ outline: 2px solid var(--brand); outline-offset:2px; }
+  .thumb img{ width:100%; height:100%; object-fit:cover; display:block }
+
+  /* Secciones laterales (datos, contacto) */
+  .side-card{
+    background:linear-gradient(180deg,var(--surface),var(--surface-2));
+    border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:12px; box-shadow:var(--shadow-sm);
+  }
+  @media (prefers-color-scheme: light){ .side-card{border-color: rgba(16,24,40,.08)}}
+  .side-card h3{ margin:0 0 8px 0; font-size:18px; letter-spacing:.2px }
+
+  .info-list{ display:grid; gap:8px }
+  .info-row{ display:flex; align-items:flex-start; gap:8px }
+  .info-row .k{ width:120px; color:var(--muted); font-size:13px }
+  .info-row .v{ flex:1 }
+
+  .tags{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px }
+  .tags .chip{ background: var(--surface-2) }
+
+  /* Tabs */
+  .tabs{
+    display:flex; gap:6px; border-bottom:1px solid rgba(255,255,255,.08); margin-top:12px;
+  }
+  @media (prefers-color-scheme: light){ .tabs{border-bottom-color: rgba(16,24,40,.08)}}
+  .tabs button{
+    appearance:none; border:0; background:transparent; padding:10px 12px; border-radius:10px 10px 0 0; cursor:pointer; font-weight:800;
+  }
+  .tabs button[aria-selected="true"]{
+    background:linear-gradient(180deg,var(--surface-2),var(--surface)); box-shadow: var(--shadow-sm); border:1px solid rgba(255,255,255,.08); border-bottom:0;
+  }
+  @media (prefers-color-scheme: light){ .tabs button[aria-selected="true"]{border-color: rgba(16,24,40,.08)}}
+
+  /* Contenido tabular */
+  .tab-panel{ padding:12px; border:1px solid rgba(255,255,255,.08); border-radius:0 12px 12px 12px; background:linear-gradient(180deg,var(--surface),var(--surface-2)); box-shadow:var(--shadow-sm) }
+  @media (prefers-color-scheme: light){ .tab-panel{border-color: rgba(16,24,40,.08)}}
+  .desc{ color:var(--muted); line-height:1.65 }
+  .table{
+    width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:12px; border:1px solid rgba(255,255,255,.08);
+  }
+  .table th, .table td{ padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.06); text-align:left }
+  .table tr:last-child td{ border-bottom:0 }
+  .table th{ background: var(--surface-2); font-size:12px; color:var(--muted) }
+
+  /* Formulario de contacto */
+  .form{
+    display:grid; gap:10px;
+  }
+  .field{ display:grid; gap:6px }
+  .field label{ font-size:13px; color:var(--muted) }
+  .input, .textarea{
+    background:var(--card); border:1px solid rgba(255,255,255,.10); border-radius:12px; padding:12px 14px; outline:none; width:100%;
+  }
+  .textarea{ min-height:120px; resize:vertical }
+  .invalid{ border-color: var(--err) !important; }
+  .hint{ font-size:12px; color:var(--muted) }
+  .form .btn{ width:fit-content }
+
+  /* Mapa simulado */
+  .map{
+    aspect-ratio: 4/3; border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,.06);
+    background:
+      radial-gradient(260px 120px at 75% 24%, rgba(10,124,255,.18), transparent),
+      radial-gradient(200px 160px at 30% 70%, rgba(98,209,255,.18), transparent),
+      linear-gradient(180deg, var(--surface), var(--surface-2));
+    display:grid; place-items:center; color:#fff; font-weight:900; letter-spacing:.2px
+  }
+
+  /* Acciones sticky (CTA) */
+  .sticky-cta{
+    position:sticky; bottom:0; z-index:40; margin-top:10px;
+    background: linear-gradient(180deg, rgba(12,14,18,.0), rgba(12,14,18,.55));
+    padding-top:10px;
+  }
+  .sticky-cta .bar{
+    background:linear-gradient(180deg,var(--surface),var(--surface-2)); border:1px solid rgba(255,255,255,.08);
+    border-radius:12px; padding:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; box-shadow:var(--shadow-sm);
+  }
+  @media (prefers-color-scheme: light){ .sticky-cta .bar{border-color: rgba(16,24,40,.08)}}
+
+  /* Impresión */
+  @media print{
+    .gallery-thumbs, .sticky-cta, #contactCard, .map, .tabs, .tab-actions{ display:none !important }
+    .ficha{ grid-template-columns:1fr }
+  }
+</style>
 
 <script>
 /* ============================================================
@@ -2030,7 +3239,82 @@ setTimeout(() => {
 
 </script>
 <!-- ======= BLOQUE 6: Páginas informativas + Acceso/Registro (UI estática) ======= -->
+<style>
+  /* ==========================
+     Bloque 6 — Estilos páginas estáticas y auth
+     ========================== */
 
+  /* Tarjeta genérica */
+  .card{
+    background:linear-gradient(180deg,var(--surface),var(--surface-2));
+    border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:14px; box-shadow:var(--shadow-sm);
+  }
+  @media (prefers-color-scheme: light){ .card{border-color: rgba(16,24,40,.08)}}
+
+  /* Layout estático */
+  .static-wrap{
+    display:grid; grid-template-columns: 1.1fr .9fr; gap:14px;
+  }
+  @media (max-width: 980px){ .static-wrap{ grid-template-columns: 1fr } }
+
+  .static-body{ display:grid; gap:12px }
+  .static-body h1{ margin:0; font-size: clamp(22px, 4vw, 30px) }
+  .static-body h2{ margin:14px 0 6px 0; font-size: 20px }
+  .static-body p{ margin:0; color:var(--muted) }
+  .static-body .list{ padding-left:18px; margin:0; color:var(--muted); line-height:1.7 }
+
+  /* Bloques info */
+  .info-block{
+    display:flex; gap:10px; align-items:flex-start; border:1px dashed rgba(255,255,255,.14);
+    border-radius:12px; padding:10px;
+  }
+  .info-icon{
+    width:40px; height:40px; border-radius:10px; display:grid; place-items:center; color:#fff; font-weight:900;
+    background:conic-gradient(from 180deg, var(--brand), var(--brand-2), var(--brand));
+  }
+
+  /* Side panel */
+  .side{
+    display:grid; gap:10px;
+  }
+  .side .item{ padding:12px; border-radius:14px; background:linear-gradient(180deg,var(--surface),var(--surface-2)); border:1px solid rgba(255,255,255,.08) }
+  @media (prefers-color-scheme: light){ .side .item{border-color: rgba(16,24,40,.08)}}
+  .side .item h3{ margin:0 0 8px 0; font-size:18px }
+  .side .item p{ margin:0; color:var(--muted) }
+
+  /* Auth UI */
+  .auth{
+    max-width: 560px; margin-inline:auto;
+  }
+  .auth h1{ margin:0 0 8px 0 }
+  .auth .sub{ color:var(--muted); margin:0 0 12px 0 }
+  .auth .form{ display:grid; gap:10px }
+  .auth .row{ display:grid; gap:6px }
+  .auth .row label{ font-size:13px; color:var(--muted) }
+  .auth .input, .auth .select, .auth .textarea{ background:var(--card); border:1px solid rgba(255,255,255,.10) }
+  .auth .hint{ font-size:12px; color:var(--muted) }
+  .auth .actions{ display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap }
+  .auth .alt{ display:flex; gap:8px; flex-wrap:wrap }
+
+  /* Password strength */
+  .pw-meter{ display:grid; grid-template-columns: repeat(4,1fr); gap:6px; margin-top:6px }
+  .pw-meter span{ height:6px; border-radius:999px; background: rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.08) }
+  .pw-meter[data-score="1"] span:nth-child(-n+1){ background:#ef4444 }
+  .pw-meter[data-score="2"] span:nth-child(-n+2){ background:#f59e0b }
+  .pw-meter[data-score="3"] span:nth-child(-n+3){ background:#10b981 }
+  .pw-meter[data-score="4"] span:nth-child(-n+4){ background:#0a7cff }
+
+  .divider{ height:1px; background: rgba(255,255,255,.08); margin:10px 0 }
+  @media (prefers-color-scheme: light){ .divider{ background: rgba(16,24,40,.08) } }
+
+  /* Tabla legal */
+  .legal-table{
+    width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:12px; border:1px solid rgba(255,255,255,.08);
+  }
+  .legal-table th, .legal-table td{ padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.06); text-align:left; vertical-align:top }
+  .legal-table tr:last-child td{ border-bottom:0 }
+  .legal-table th{ background: var(--surface-2); font-size:12px; color:var(--muted); width:220px }
+</style>
 
 <script>
 /* ============================================================
@@ -2079,7 +3363,7 @@ function sideLinks(){
     </div>
     <div class="item">
       <h3>¿Necesitas ayuda?</h3>
-      <p>Escríbenos a <a class="chip" href="mailto:soporte@ImpulsoLocal">soporte@ImpulsoLocal</a></p>
+      <p>Escríbenos a <a class="chip" href="mailto:ImpulsoLocalLLima@gmail.com">ImpulsoLocalLima@gmail.com</a></p>
       <p class="hint">Tiempo de respuesta estimado: 24–48 h hábiles.</p>
     </div>
   `;
@@ -2329,7 +3613,114 @@ function viewFavoritos(){
 
 </script>
 <!-- ======= BLOQUE 7: Pulido visual + micro-animaciones + accesibilidad + rendimiento ======= -->
+<style>
+  /* ==========================
+     Bloque 7 — Visual polish, a11y y performance
+     ========================== */
 
+  /* Skip link */
+  .skip-link{
+    position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;
+  }
+  .skip-link:focus{
+    position:fixed; left:10px; top:10px; width:auto; height:auto; padding:8px 12px; z-index:100;
+    background:var(--surface); color:var(--text); border:1px solid rgba(255,255,255,.12); border-radius:10px;
+    box-shadow:var(--shadow);
+  }
+
+  /* Enfoque visible y accesible */
+  :where(a,button,[role="button"],.select,.input,.textarea,.chip,.badge):focus-visible{
+    outline:none; box-shadow: var(--ring);
+  }
+
+  /* Micro-animaciones (desactivables por reduced-motion) */
+  @media (prefers-reduced-motion: no-preference){
+    .btn, .chip, .cat-card, .card-company, .list-item{
+      transition: transform .16s ease, background .16s ease, box-shadow .16s ease, border-color .16s ease, opacity .16s ease;
+    }
+    .btn:hover{ transform: translateY(-1px) }
+    .cat-card:hover, .card-company:hover, .list-item:hover{ transform: translateY(-2px) }
+    .badge{ transition: transform .16s ease }
+    .badge:hover{ transform: translateY(-1px) }
+  }
+
+  /* Transiciones de ruta */
+  .route{
+    view-transition-name: route; /* algunos navegadores soportan */
+    opacity: 0; transform: translateY(6px);
+  }
+  .route.is-enter{
+    opacity: 1; transform: translateY(0);
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .route{ opacity:1; transform:none }
+    .route.is-enter{ transition:none }
+  }
+
+  /* Efecto “reveal” al aparecer en viewport */
+  .reveal{ opacity:0; transform: translateY(8px) }
+  .reveal.reveal--in{ opacity:1; transform:none; transition: opacity .25s ease, transform .25s ease }
+
+  /* Tooltips mínimos usando atributo [data-tip] */
+  [data-tip]{ position:relative }
+  [data-tip]::after{
+    content: attr(data-tip);
+    position:absolute; left:50%; bottom: calc(100% + 8px);
+    transform: translateX(-50%); pointer-events:none; white-space:nowrap;
+    background: var(--surface); color: var(--text); border:1px solid rgba(255,255,255,.12); border-radius:8px;
+    padding:6px 8px; font-size:12px; opacity:0; translate: 0 4px; transition: opacity .12s ease, translate .12s ease;
+    box-shadow: var(--shadow-sm); visibility:hidden;
+  }
+  [data-tip]:hover::after, [data-tip]:focus-visible::after{
+    opacity:1; translate: 0 0; visibility:visible;
+  }
+
+  /* Botón volver arriba */
+  .to-top{
+    position:fixed; right:16px; bottom:166px; z-index:60; opacity:0; pointer-events:none;
+    transition: opacity .18s ease, transform .18s ease; transform: translateY(6px);
+  }
+  .to-top.is-shown{ opacity:1; pointer-events:auto; transform:none }
+
+  /* Sombra del header cuando haces scroll */
+  .site.has-shadow{
+    box-shadow: 0 6px 18px rgba(0,0,0,.28);
+  }
+
+  /* content-visibility para mejorar performance en secciones grandes */
+  #home, #view-listado, #view-ficha, #view-static{
+    content-visibility: auto;
+    contain-intrinsic-size: 600px; /* tamaño estimado, evita saltos grandes */
+  }
+
+  /* Estados de carga de imágenes (progressive reveal) */
+  .img-ph{
+    filter: blur(10px); transform: scale(1.02); opacity:.8;
+    transition: filter .25s ease, transform .25s ease, opacity .25s ease;
+  }
+  .img-ph.is-ready{
+    filter: blur(0); transform: none; opacity:1;
+  }
+
+  /* Overlays y ayuda rápida */
+  .hint-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; place-items:center; z-index:80;
+    padding:16px;
+  }
+  .hint-card{
+    max-width: 720px; width:100%;
+    background:linear-gradient(180deg,var(--surface),var(--surface-2));
+    border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:14px; box-shadow:var(--shadow-lg);
+  }
+  .hint-card h3{ margin:0 0 8px 0 }
+  .hint-card kbd{
+    background: var(--surface-2); border:1px solid rgba(255,255,255,.12); border-radius:6px; padding:2px 6px; font-family:var(--mono); font-size:12px
+  }
+
+  /* Mejora del “sticky-cta” en iOS/Android */
+  .sticky-cta .bar{ -webkit-backdrop-filter: saturate(1.1) blur(6px); backdrop-filter: saturate(1.1) blur(6px) }
+</style>
 
 <!-- Skip link para a11y -->
 <a href="#app" class="skip-link">Saltar al contenido principal</a>
@@ -2377,6 +3768,7 @@ function viewRegistrar(){
       <div class="contact-box" style="margin-top:18px;">
         <p><strong>📧 Correo:</strong> <a href="mailto:impulsolocallima@gmail.com">impulsolocallima@gmail.com</a></p>
         <p><strong>📱 WhatsApp:</strong>
+          
           <a href="https://wa.me/51936620504" target="_blank">+51 936 620 504</a>
         </p>
       </div>
@@ -2934,6 +4326,330 @@ document.addEventListener('readystatechange', () => {
 </script>
 
 
+<!-- ========================================================= -->
+<!-- BLOQUE PLUS 01 — INTERFAZ VERDE-SUAVE PROFESIONAL -->
+<!-- Paleta: #efffe1, #eeffcd, #e7ffad, #dbff95, #bfff8a -->
+<!-- Estilo fresco, claro y natural -->
+<!-- ========================================================= -->
+<style>
+  :root[data-theme='suave'] {
+    /* PALETA BASE */
+    --verde-suave: #bfff8a;   /* principal */
+    --verde-claro: #dbff95;   /* acento */
+    --verde-medio: #e7ffad;   /* medio */
+    --verde-pastel: #eeffcd;  /* fondo medio */
+    --crema: #efffe1;         /* fondo principal */
+
+    /* DERIVADOS Y MATICES */
+    --bg: var(--crema);
+    --surface: var(--verde-pastel);
+    --surface-2: var(--verde-medio);
+    --surface-3: var(--verde-claro);
+    --overlay: rgba(102, 255, 102, 0.518);
+
+    /* TEXTO */
+    --text: #1b1c17;
+    --text-strong: #2e3220;
+    --subtext: #4b5a24;
+    --muted: #1e4734;
+
+    /* ACCENTOS */
+    --primary: var(--verde-suave);
+    --primary-light: var(--verde-claro);
+    --primary-dark: #91e67f;
+    --accent: #24835f;
+    --highlight: #fafff2;
+
+    /* BORDES Y SOMBRAS */
+    
+  --brand: #10b981;
+  --brand-2: #34d399;
+
+    --border: #cde5a5;
+    --border-strong: #a3dc76;
+    --shadow-sm: 0 2px 10px rgba(107, 186, 80, 0.25);
+    --shadow-md: 0 6px 20px rgba(107, 186, 80, 0.35);
+
+    /* BOTONES Y EFECTOS */
+    --btn-text: #1a1a1a;
+    --hover: rgb(176, 241, 221);
+    --danger: #f37a6a;
+    
+  }
+
+  /* Transiciones */
+  body.theme-transition,
+  body.theme-transition * {
+    transition: background-color 0.45s ease, color 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease;
+  }
+  body.fade-in-theme {
+    animation: fadeTheme 0.5s ease forwards;
+  }
+  @keyframes fadeTheme {
+    from { filter: brightness(0.85); opacity: 0.7; }
+    to { filter: brightness(1); opacity: 1; }
+  }
+
+  /* Estructura global */
+  :root[data-theme='suave'] body {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  :root[data-theme='suave'] header.app,
+  :root[data-theme='suave'] main,
+  :root[data-theme='suave'] footer.app,
+  :root[data-theme='suave'] .container {
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    border-color: var(--border);
+  }
+
+  :root[data-theme='suave'] header.app {
+    background: var(--surface-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  :root[data-theme='suave'] footer.app {
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+    color: var(--subtext);
+  }
+
+  /* Texto y enlaces */
+  :root[data-theme='suave'] h1, 
+  :root[data-theme='suave'] h2, 
+  :root[data-theme='suave'] h3 {
+    color: var(--text-strong);
+  }
+  :root[data-theme='suave'] p, 
+  :root[data-theme='suave'] span, 
+  :root[data-theme='suave'] a {
+    color: var(--text);
+  }
+  
+
+  /* Botones */
+  :root[data-theme='suave'] .btn-primary {
+    background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+    color: var(--btn-text);
+    box-shadow: 0 3px 10px rgba(107,186,80,0.25);
+  }
+  :root[data-theme='suave'] .btn-primary:hover {
+    background: var(--primary-light);
+  }
+  :root[data-theme='suave'] .btn-ghost {
+    background: var(--hover);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  :root[data-theme='suave'] .btn-ghost:hover {
+    background: var(--accent);
+  }
+
+  /* Inputs */
+  :root[data-theme='suave'] input,
+  :root[data-theme='suave'] textarea,
+  :root[data-theme='suave'] select {
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  :root[data-theme='suave'] input::placeholder {
+    color: var(--muted);
+  }
+
+  /* Hero y tarjetas */
+  :root[data-theme='suave'] .hero {
+    background: linear-gradient(180deg, var(--highlight), var(--surface-3));
+    border-radius: 14px;
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+  }
+  :root[data-theme='suave'] .hero .title { color: var(--text-strong); }
+  :root[data-theme='suave'] .hero .lead { color: var(--subtext); }
+
+  :root[data-theme='suave'] .cat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  :root[data-theme='suave'] .cat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+
+  :root[data-theme='suave'] .cat-media {
+    background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+    color: #201011;
+  }
+  :root[data-theme='suave'] .badge {
+    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    color: #202010;
+  }
+
+  /* Botón de cambio de interfaz */
+  .theme-toggle {
+    position: fixed;
+    top: 14px;
+    right: 18px;
+    background: var(--primary);
+    color: #4fe7a2;
+    border: none;
+    border-radius: 40px;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 10px rgba(107,186,80,0.25);
+    cursor: pointer;
+    z-index: 9999;
+    transition: background 0.25s ease, transform 0.25s ease;
+  }
+  .theme-toggle:hover {
+    background: var(--primary-dark);
+    transform: scale(1.05);
+  }
+  .theme-toggle span {
+    margin-left: 6px;
+    font-weight: 600;
+  }
+  .theme-toggle::after {
+    content: "Modo Verde-Suave";
+    position: absolute;
+    bottom: -1.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: var(--subtext);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .theme-toggle:hover::after { opacity: 1; }
+
+
+
+
+
+
+  /* DEGRADADOS MÁS NOTORIOS */
+
+/* 1. BORDE CON DEGRADADO MÁS FUERTE */
+[data-theme='suave'] .cat-card::before,
+[data-theme='suave'] .card-company::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: -3px !important;
+  border-radius: inherit !important;
+  background: linear-gradient(135deg, #bfff8a 0%, #91e67f 25%, #dbff95 50%, #e7ffad 75%, #bfff8a 100%) !important;
+  z-index: -1 !important;
+  opacity: 1 !important;
+}
+
+/* 2. HOVER MÁS BRILLANTE */
+[data-theme='suave'] .cat-card:hover::before,
+[data-theme='suave'] .card-company:hover::before {
+  background: linear-gradient(135deg, #91e67f 0%, #bfff8a 25%, #dbff95 50%, #bfff8a 75%, #91e67f 100%) !important;
+  inset: -4px !important;
+  filter: brightness(1.1) !important;
+}
+
+/* 3. HERO MÁS VIBRANTE */
+[data-theme='suave'] .hero {
+  background: linear-gradient(135deg, #e7ffad 0%, #dbff95 30%, #bfff8a 60%, #efffe1 100%) !important;
+}
+
+/* 4. HEADER CON MÁS COLOR */
+[data-theme='suave'] header.site {
+  background: linear-gradient(180deg, #dbff95 0%, #eeffcd 50%, rgba(239, 255, 225, 0.95) 100%) !important;
+  backdrop-filter: blur(12px) !important;
+}
+/* FORZADOR DE EJECUCIÓN - Pegar al FINAL de todo el <style> */
+
+/* 1. CABECERA DE EMPRESA */
+[data-theme='suave'] .ficha-head {
+  background: linear-gradient(135deg, #e7ffad 0%, #dbff95 50%, #bfff8a 100%) !important;
+  border: 3px solid transparent !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+[data-theme='suave'] .ficha-head::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: -3px !important;
+  border-radius: 16px !important;
+  background: linear-gradient(135deg, #bfff8a, #91e67f, #dbff95, #e7ffad) !important;
+  z-index: -1 !important;
+}
+
+/* 2. LOGO BRILLANTE */
+[data-theme='suave'] .ficha-logo,
+[data-theme='suave'] .brand-logo,
+[data-theme='suave'] .card-logo {
+  background: linear-gradient(135deg, #bfff8a 0%, #91e67f 50%, #dbff95 100%) !important;
+  box-shadow: 0 4px 16px rgba(191, 255, 138, 0.5) !important;
+}
+
+/* 3. GALERÍA */
+[data-theme='suave'] .gallery,
+[data-theme='suave'] .gallery-main {
+  border: 3px solid #bfff8a !important;
+  box-shadow: 0 8px 24px rgba(191, 255, 138, 0.3) !important;
+}
+
+
+
+/* 5. BADGE VERIFICADA */
+[data-theme='suave'] .badge {
+  background: linear-gradient(135deg, #bfff8a 0%, #91e67f 100%) !important;
+  box-shadow: 0 4px 12px rgba(191, 255, 138, 0.6) !important;
+  border: 2px solid rgba(255, 255, 255, 0.7) !important;
+  color: #1a1a1a !important;
+}
+
+/* 6. MINIATURA ACTIVA */
+[data-theme='suave'] .thumb[aria-current="true"] {
+  outline: 3px solid #bfff8a !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 20px rgba(191, 255, 138, 0.6) !important;
+}
+
+/* 7. TABS ACTIVO */
+[data-theme='suave'] .tabs button[aria-selected="true"] {
+  background: linear-gradient(180deg, #e7ffad 0%, #dbff95 100%) !important;
+  border-top: 3px solid #bfff8a !important;
+  box-shadow: 0 -2px 8px rgba(191, 255, 138, 0.3) !important;
+}
+
+/* 8. MAPA */
+[data-theme='suave'] .map iframe,
+[data-theme='suave'] iframe[src*="google.com/maps"] {
+  border: 3px solid #dbff95 !important;
+  box-shadow: 0 6px 18px rgba(191, 255, 138, 0.3) !important;
+  border-radius: 12px !important;
+}
+
+/* 9. BREADCRUMBS */
+[data-theme='suave'] .breadcrumbs,
+[data-theme='suave'] .migas {
+  background: linear-gradient(90deg, transparent, rgba(191, 255, 138, 0.15), transparent) !important;
+  padding: 12px !important;
+  border-radius: 12px !important;
+}
+
+/* 10. FORZAR A TODO EL CONTENIDO DE FICHA */
+[data-theme='suave'] #view-ficha .section,
+[data-theme='suave'] #view-ficha > div {
+  position: relative !important;
+}
+
+
+</style>
 
 
 <script>
@@ -2942,6 +4658,9 @@ document.addEventListener('readystatechange', () => {
   ====================================================== */
   document.addEventListener("DOMContentLoaded", () => {
     
+    toggleBtn.className = "theme-toggle";
+    toggleBtn.innerHTML = "🌿<span>Interfaz</span>";
+    document.body.appendChild(toggleBtn);
 
     const savedTheme = localStorage.getItem("impulsolocal_theme");
     if (savedTheme === "suave") {
@@ -3557,11 +5276,15 @@ transition:transform .14s ease,box-shadow .14s ease;}
       </div>
       <select id="ppCategory">
         <option value="">Todas</option>
-        <option value="comida-bebida">Comida & Bebida</option>
-        <option value="servicios">Servicios</option>
-        <option value="ropa">Ropa</option>
+        <option value="servicios-profesionales">Servicios</option>
+        <option value="comida-bebida">Alimentos y Bebidas</option>
         <option value="hogar">Hogar</option>
+        <option value="salud-belleza">Salud y Bienestar</option>
+        <option value="tecnologia">Productos Digitales y Tecnología</option>
         <option value="mascotas">Mascotas</option>
+        <option value="alquileres-espacios">Alquileres y Espacios</option>
+        <option value="educacion">Librería y Educación</option>
+        <option value="ropa-accesorios">Ropa y Accesorios</option>
       </select>
       <button id="ppBtnReset" class="pp-cta-ghost">Reset</button>
     </div>
@@ -3623,7 +5346,7 @@ transition:transform .14s ease,box-shadow .14s ease;}
               <div class="pp-titleCard">${escapeHtml(o.title)}</div>
               <div class="pp-subline">${escapeHtml(o.empresa||'')} · ${escapeHtml(o.categoria||'')}</div>
             </div>
-            <div class="pp-badges">${badge}${price}<div class="small">${formatDateTime(o.ts)}</div></div>
+            <div class="pp-badges">${badge}${price}<div class="small"></div></div>
           </div>
           <div class="pp-desc">${escapeHtml(o.desc||'')}</div>
           <div class="pp-ctas">
@@ -3668,10 +5391,8 @@ transition:transform .14s ease,box-shadow .14s ease;}
   /* Ejemplo inicial */
   document.addEventListener('DOMContentLoaded',()=>{
     setOffers([
-      {empresa:'Panadería Sol',categoria:'comida-bebida',title:'Descuento 20% en tortas',desc:'Solo por hoy hasta agotar stock.',images:['https://picsum.photos/seed/torta/800/500'],url:'file:///C:/Users/User/Desktop/ChesskingOwen/STUDIO%20CODE/integradorlocal/impulsolocal001.html#/empresa/e-001',verificada:true,price:'-20%'},
-      {empresa:'Taller AutoPro',categoria:'servicios',title:'Cambio de aceite gratis',desc:'Al realizar mantenimiento completo.                          ',images:['https://picsum.photos/seed/auto/800/500'],url:'#',verificada:false},
-      {empresa:'Florería Natura',categoria:'hogar',title:'Rosas premium',desc:'Entrega a domicilio en 2 horas solo por hoy contamos con el descuento del 80% en todos nuestros productos seleccionados, no esperes más y acercate a nuestras tiendas más cercanas.-------------------------------------------',images:['https://picsum.photos/seed/flores/800/500'],url:'#',verificada:true},
-      {empresa:'Jardín de Ida',categoria:'hogar',title:'Rosas premium',desc:'Entrega a domicilio en 2 horas.',images:['width_800.jpeg'],url:'#',verificada:true}
+      
+      {empresa:'Jardín de Ida',categoria:'hogar',title:'Rosas premium',desc:'Entrega a domicilio en 2 horas.',images:['width_800.jpeg'],url:'file:///C:/Users/User/Desktop/ChesskingOwen/STUDIO%20CODE/integradorlocal/index.html#/empresa/e-001',verificada:true,price:'S/.60'},
     ]);
   });
 })();
@@ -4813,158 +6534,7 @@ function tarjetaGrid(e) {
     }
   }
 
-   // 2. CREAR BOTÓN DE COPIAR IMAGEN
-  function crearBotonCopiar() {
-    const galeria = document.querySelector('.gallery-main');
-    if (!galeria || document.getElementById('btnCopiarImagen')) return;
-
-    const btnCopiar = document.createElement('button');
-    btnCopiar.id = 'btnCopiarImagen';
-    btnCopiar.innerHTML = '📋';
-    btnCopiar.title = 'Copiar imagen';
-    btnCopiar.style.cssText = `
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.9);
-      border: 2px solid #0a7cff;
-      cursor: pointer;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    `;
-
-    btnCopiar.addEventListener('mouseenter', () => {
-      btnCopiar.style.transform = 'scale(1.1)';
-      btnCopiar.style.background = 'rgba(10, 124, 255, 0.9)';
-    });
-
-    btnCopiar.addEventListener('mouseleave', () => {
-      btnCopiar.style.transform = 'scale(1)';
-      btnCopiar.style.background = 'rgba(255, 255, 255, 0.9)';
-    });
-
-    btnCopiar.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      await copiarImagenNativa();
-    });
-
-    galeria.appendChild(btnCopiar);
-  }
-
-  // COPIAR IMAGEN COMO SI FUERA CLIC DERECHO → COPIAR IMAGEN
-  async function copiarImagenNativa() {
-    const img = document.querySelector('#galMain');
-    if (!img || !img.src) {
-      mostrarAviso('⚠️ No se encontró la imagen', 'error');
-      return;
-    }
-
-    try {
-      const btnCopiar = document.getElementById('btnCopiarImagen');
-      if (btnCopiar) {
-        btnCopiar.innerHTML = '⏳';
-        btnCopiar.style.pointerEvents = 'none';
-      }
-
-      // Convertir imagen a blob
-      const response = await fetch(img.src);
-      const blob = await response.blob();
-      
-      // Copiar al portapapeles usando Clipboard API
-      if (navigator.clipboard && window.ClipboardItem) {
-        await navigator.clipboard.write([
-          new ClipboardItem({
-            [blob.type]: blob
-          })
-        ]);
-        
-        mostrarAviso('✅ Imagen copiada', 'success');
-      } else {
-        // Fallback: intentar con canvas
-        copiarConCanvas(img);
-      }
-
-      // Restaurar botón
-      setTimeout(() => {
-        if (btnCopiar) {
-          btnCopiar.innerHTML = '✓';
-          setTimeout(() => {
-            btnCopiar.innerHTML = '📋';
-            btnCopiar.style.pointerEvents = 'auto';
-          }, 1200);
-        }
-      }, 300);
-
-    } catch (error) {
-      console.error('Error:', error);
-      mostrarAviso('⚠️ No se pudo copiar. Usa clic derecho → Copiar imagen', 'error');
-      
-      if (document.getElementById('btnCopiarImagen')) {
-        document.getElementById('btnCopiarImagen').innerHTML = '❌';
-        setTimeout(() => {
-          document.getElementById('btnCopiarImagen').innerHTML = '📋';
-          document.getElementById('btnCopiarImagen').style.pointerEvents = 'auto';
-        }, 1500);
-      }
-    }
-  }
-
-  // Fallback usando canvas
-  function copiarConCanvas(img) {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    ctx.drawImage(img, 0, 0);
-    
-    canvas.toBlob(async (blob) => {
-      try {
-        await navigator.clipboard.write([
-          new ClipboardItem({ 'image/png': blob })
-        ]);
-        mostrarAviso('✅ Imagen copiada', 'success');
-      } catch (err) {
-        mostrarAviso('⚠️ Usa clic derecho → Copiar imagen', 'error');
-      }
-    });
-  }
-
-  function mostrarAviso(mensaje, tipo = 'success') {
-    if (window.Toast) {
-      Toast.show(mensaje, tipo === 'success' ? 'ok' : 'error');
-      return;
-    }
-
-    const aviso = document.createElement('div');
-    aviso.textContent = mensaje;
-    aviso.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: ${tipo === 'success' ? '#10b981' : '#ef4444'};
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      z-index: 99999;
-      animation: slideIn 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    `;
-    document.body.appendChild(aviso);
-    setTimeout(() => {
-      aviso.style.animation = 'slideOut 0.3s ease';
-      setTimeout(() => aviso.remove(), 300);
-    }, 2500);
-  }
+  
 
   // 3. NAVEGACIÓN EN LIGHTBOX (DESPLAZA IMÁGENES REALES)
   function agregarNavegacionLightbox() {
@@ -5881,7 +7451,7 @@ function setupImageDescriptions(e, p){
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 240px;
   transition: all 0.25s ease;
   box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
 }
@@ -6186,8 +7756,9 @@ function setupImageDescriptions(e, p){
   });
   
 })();
-</script>
-<script>
+
+
+
 /* ============================================================
    FORZAR TEMA VERDE-SUAVE PERMANENTE
    Colocar al FINAL antes de </body>
@@ -6229,10 +7800,2147 @@ function setupImageDescriptions(e, p){
     }
   });
 })();
+
+
+
+
+
 </script>
-<!-- ===================== SCRIPTS ===================== -->
+<script>
+/* ============================================================
+   CARRUSEL PREMIUM - Hero con imágenes clickeables y navegación
+   Sistema automático + manual con flechas decorativas
+============================================================ */
+
+(function() {
   
-  <script src="./funciones.js" defer></script>
+  // 🎨 CONFIGURACIÓN: Agrega tus imágenes aquí
+  const SLIDES = [
+    {
+      imagen: 'anturio blanco.webp',
+      titulo: 'Jardín de Ida',
+      url: '#/empresa/e-001',
+      descripcion: 'Orquídeas y anturios frescos'
+    },
+    {
+      imagen: 'width_800.jpeg',
+      titulo: 'Flores Natura',
+      url: '#/empresa/e-002',
+      descripcion: 'Arreglos florales personalizados'
+    },
+    {
+      imagen: 'orquidea-phalaenopsis-blancas-bs.jpg',
+      titulo: 'Green Garden',
+      url: '#/empresa/e-003',
+      descripcion: 'Plantas decorativas premium'
+    }
+  ];
+  
+  let currentSlide = 0;
+  let autoPlayInterval = null;
+  let carouselContainer = null;
+  
+  // Crear estructura HTML del carrusel
+  function crearCarrusel() {
+    const heroContainer = document.querySelector('.hero-grid aside > div');
+    
+    if (!heroContainer) {
+      console.warn('⚠️ No se encontró el contenedor del hero');
+      return;
+    }
+    
+    // Evitar duplicación
+    if (document.getElementById('heroCarouselPremium')) return;
+    
+    // Limpiar contenido anterior
+    heroContainer.innerHTML = '';
+    
+    // Crear contenedor principal
+    carouselContainer = document.createElement('div');
+    carouselContainer.id = 'heroCarouselPremium';
+    carouselContainer.className = 'hero-carousel-premium';
+    
+    carouselContainer.innerHTML = `
+      <!-- Badge "Recomendado" -->
+      <div class="carousel-badge">
+        <span class="badge-icon">⭐</span>
+        <span class="badge-text">Recomendado por la comunidad</span>
+      </div>
+      
+      <!-- Contenedor de slides -->
+      <div class="carousel-track" id="carouselTrack">
+        ${SLIDES.map((slide, index) => `
+          <a href="${slide.url}" 
+             class="carousel-slide ${index === 0 ? 'active' : ''}" 
+             data-index="${index}"
+             title="${slide.titulo}">
+            <img src="${slide.imagen}" 
+                 alt="${slide.titulo}" 
+                 loading="lazy">
+            <div class="slide-overlay">
+              <div class="slide-content">
+                <h3 class="slide-title">${slide.titulo}</h3>
+                <p class="slide-desc">${slide.descripcion}</p>
+                <span class="slide-cta">Ver más →</span>
+              </div>
+            </div>
+          </a>
+        `).join('')}
+      </div>
+      
+      <!-- Controles de navegación -->
+      <button class="carousel-btn carousel-prev" id="carouselPrev" aria-label="Anterior">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      
+      <button class="carousel-btn carousel-next" id="carouselNext" aria-label="Siguiente">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+      
+      <!-- Indicadores de puntos -->
+      <div class="carousel-dots" id="carouselDots">
+        ${SLIDES.map((_, index) => `
+          <button class="carousel-dot ${index === 0 ? 'active' : ''}" 
+                  data-index="${index}" 
+                  aria-label="Ir a slide ${index + 1}"></button>
+        `).join('')}
+      </div>
+      
+      <!-- Indicador de progreso -->
+      <div class="carousel-progress">
+        <div class="carousel-progress-bar" id="progressBar"></div>
+      </div>
+    `;
+    
+    heroContainer.appendChild(carouselContainer);
+    
+    // Inicializar eventos
+    inicializarEventos();
+    iniciarAutoPlay();
+    
+    console.log('✅ Carrusel premium creado');
+  }
+  
+  // Navegar a un slide específico
+  function irASlide(index) {
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.carousel-dot');
+    
+    if (!slides.length) return;
+    
+    // Ciclo infinito
+    if (index < 0) index = SLIDES.length - 1;
+    if (index >= SLIDES.length) index = 0;
+    
+    currentSlide = index;
+    
+    // Actualizar slides activos
+    slides.forEach((slide, i) => {
+      slide.classList.toggle('active', i === index);
+    });
+    
+    // Actualizar dots
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+    });
+    
+    // Reiniciar barra de progreso
+    reiniciarProgreso();
+  }
+  
+  // Navegar hacia adelante/atrás
+  function siguiente() {
+    irASlide(currentSlide + 1);
+  }
+  
+  function anterior() {
+    irASlide(currentSlide - 1);
+  }
+  
+  // Inicializar eventos de navegación
+  function inicializarEventos() {
+    // Botones de flechas
+    document.getElementById('carouselPrev')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      anterior();
+      pausarAutoPlay();
+    });
+    
+    document.getElementById('carouselNext')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      siguiente();
+      pausarAutoPlay();
+    });
+    
+    // Dots de navegación
+    document.querySelectorAll('.carousel-dot').forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        e.preventDefault();
+        const index = parseInt(dot.dataset.index);
+        irASlide(index);
+        pausarAutoPlay();
+      });
+    });
+    
+    // Pausar autoplay al hacer hover
+    carouselContainer?.addEventListener('mouseenter', pausarAutoPlay);
+    carouselContainer?.addEventListener('mouseleave', reanudarAutoPlay);
+    
+    // Navegación con teclado
+    document.addEventListener('keydown', (e) => {
+      if (!carouselContainer) return;
+      if (e.key === 'ArrowLeft') anterior();
+      if (e.key === 'ArrowRight') siguiente();
+    });
+    
+    // Swipe en móviles
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    carouselContainer?.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+    
+    carouselContainer?.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    });
+    
+    function handleSwipe() {
+      if (touchEndX < touchStartX - 50) siguiente();
+      if (touchEndX > touchStartX + 50) anterior();
+    }
+  }
+  
+  // Sistema de auto-play
+  function iniciarAutoPlay() {
+    autoPlayInterval = setInterval(() => {
+      siguiente();
+    }, 5000); // Cambia cada 5 segundos
+    
+    animarProgreso();
+  }
+  
+  function pausarAutoPlay() {
+    if (autoPlayInterval) {
+      clearInterval(autoPlayInterval);
+      autoPlayInterval = null;
+    }
+    detenerProgreso();
+  }
+  
+  function reanudarAutoPlay() {
+    if (!autoPlayInterval) {
+      iniciarAutoPlay();
+    }
+  }
+  
+  // Animación de barra de progreso
+  function animarProgreso() {
+    const progressBar = document.getElementById('progressBar');
+    if (!progressBar) return;
+    
+    progressBar.style.transition = 'none';
+    progressBar.style.width = '0%';
+    
+    setTimeout(() => {
+      progressBar.style.transition = 'width 5s linear';
+      progressBar.style.width = '100%';
+    }, 50);
+  }
+  
+  function reiniciarProgreso() {
+    detenerProgreso();
+    setTimeout(animarProgreso, 50);
+  }
+  
+  function detenerProgreso() {
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) {
+      progressBar.style.transition = 'none';
+      progressBar.style.width = '0%';
+    }
+  }
+  
+  // Inicializar al cargar
+  document.addEventListener('DOMContentLoaded', crearCarrusel);
+  
+  // Re-ejecutar al navegar a home
+  window.addEventListener('hashchange', () => {
+    if (location.hash === '#/' || location.hash === '') {
+      setTimeout(crearCarrusel, 100);
+    } else {
+      // Detener autoplay al salir de home
+      pausarAutoPlay();
+    }
+  });
+  
+  // Ejecutar inmediatamente si ya cargó
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(crearCarrusel, 0);
+  }
+  
+})();
+</script>
+
+<style>
+/* ============================================================
+   ESTILOS PREMIUM PARA CARRUSEL HERO
+   Diseño moderno con glassmorphism y animaciones fluidas
+============================================================ */
+
+.hero-carousel-premium {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(135deg, 
+    rgba(10,124,255,0.08) 0%, 
+    rgba(98,209,255,0.12) 50%,
+    rgba(10,124,255,0.08) 100%);
+  box-shadow: 
+    0 20px 60px rgba(10,124,255,0.15),
+    0 0 0 1px rgba(255,255,255,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+/* Badge "Recomendado" */
+.carousel-badge {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, 
+    rgba(255,255,255,0.95) 0%, 
+    rgba(255,255,255,0.85) 100%);
+  backdrop-filter: blur(10px) saturate(1.5);
+  padding: 10px 18px;
+  border-radius: 999px;
+  box-shadow: 
+    0 8px 32px rgba(0,0,0,0.15),
+    0 0 0 1px rgba(255,255,255,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+  animation: badgePulse 3s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.badge-icon {
+  font-size: 18px;
+  animation: starRotate 4s linear infinite;
+}
+
+@keyframes starRotate {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
+
+.badge-text {
+  font-weight: 700;
+  font-size: 13px;
+  background: linear-gradient(135deg, #0a7cff 0%, #00d4ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.3px;
+}
+
+/* Track de slides */
+.carousel-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Slide individual */
+.carousel-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s ease, visibility 0.6s ease, transform 0.6s ease;
+  transform: scale(0.95);
+}
+
+.carousel-slide.active {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+  z-index: 1;
+}
+
+.carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.carousel-slide:hover img {
+  transform: scale(1.05);
+}
+
+/* Overlay con contenido */
+.slide-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0,0,0,0.2) 40%,
+    rgba(0,0,0,0.7) 100%
+  );
+  display: flex;
+  align-items: flex-end;
+  padding: 28px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.carousel-slide:hover .slide-overlay {
+  opacity: 1;
+}
+
+.slide-content {
+  color: white;
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.carousel-slide:hover .slide-content {
+  transform: translateY(0);
+}
+
+/* Título con color forzado */
+.slide-title {
+  margin: 0 0 6px 0;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  color: #ffffff !important; /* 👈 FUERZA el blanco puro */
+  text-shadow: 
+    0 3px 12px rgba(0,0,0,0.8), 
+    0 1px 3px rgba(0,0,0,1),
+    0 0 20px rgba(10,124,255,0.3) !important;
+}
+
+/* Descripción con color forzado */
+.slide-desc {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #f5f5f5 !important; /* 👈 FUERZA gris muy claro */
+  text-shadow: 
+    0 2px 8px rgba(0,0,0,0.8),
+    0 1px 2px rgba(0,0,0,1) !important;
+}
+
+/* Botón "Ver más" con color forzado */
+.slide-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.25) !important;
+  backdrop-filter: blur(10px);
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #ffffff !important; /* 👈 FUERZA blanco */
+  border: 1px solid rgba(255,255,255,0.4) !important;
+  transition: all 0.25s ease;
+}
+
+.carousel-slide:hover .slide-cta {
+  background: rgba(255,255,255,0.3);
+  transform: translateX(4px);
+}
+
+/* Botones de navegación */
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, 
+    rgba(255,255,255,0.95) 0%, 
+    rgba(255,255,255,0.85) 100%);
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 8px 32px rgba(0,0,0,0.15),
+    0 0 0 1px rgba(255,255,255,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+  color: #0a7cff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+}
+
+.hero-carousel-premium:hover .carousel-btn {
+  opacity: 1;
+}
+
+.carousel-prev {
+  left: 16px;
+}
+
+.carousel-next {
+  right: 16px;
+}
+
+.carousel-btn:hover {
+  background: linear-gradient(135deg, 
+    rgba(10,124,255,0.95) 0%, 
+    rgba(0,212,255,0.95) 100%);
+  color: white;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 
+    0 12px 40px rgba(10,124,255,0.35),
+    0 0 0 1px rgba(255,255,255,0.5);
+}
+
+.carousel-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* Indicadores de puntos */
+.carousel-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+}
+
+.carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.4);
+  backdrop-filter: blur(5px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.carousel-dot:hover {
+  background: rgba(255,255,255,0.6);
+  transform: scale(1.2);
+}
+
+.carousel-dot.active {
+  width: 32px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, 
+    rgba(255,255,255,0.95) 0%, 
+    rgba(255,255,255,0.8) 100%);
+  box-shadow: 0 2px 8px rgba(255,255,255,0.3);
+}
+
+/* Barra de progreso */
+.carousel-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255,255,255,0.2);
+  overflow: hidden;
+  z-index: 9;
+}
+
+.carousel-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, 
+    #0a7cff 0%, 
+    #00d4ff 100%);
+  width: 0%;
+  box-shadow: 0 0 10px rgba(10,124,255,0.6);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .carousel-badge {
+    top: 12px;
+    left: 12px;
+    padding: 8px 14px;
+  }
+  
+  .badge-text {
+    font-size: 11px;
+  }
+  
+  .carousel-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .carousel-prev {
+    left: 8px;
+  }
+  
+  .carousel-next {
+    right: 8px;
+  }
+  
+  .slide-title {
+    font-size: 18px;
+  }
+  
+  .slide-desc {
+    font-size: 12px;
+  }
+  
+  .slide-overlay {
+    padding: 18px;
+  }
+}
+
+/* Tema verde-suave (opcional) */
+[data-theme='suave'] .carousel-badge {
+  background: linear-gradient(135deg, 
+    rgba(191,255,138,0.95) 0%, 
+    rgba(219,255,149,0.95) 100%);
+}
+
+[data-theme='suave'] .badge-text {
+  background: linear-gradient(135deg, #2e3220 0%, #4b5a24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-theme='suave'] .carousel-btn {
+  background: linear-gradient(135deg, 
+    rgba(191,255,138,0.95) 0%, 
+    rgba(219,255,149,0.85) 100%);
+  color: #2e3220;
+}
+
+[data-theme='suave'] .carousel-btn:hover {
+  background: linear-gradient(135deg, 
+    rgba(145,230,127,0.95) 0%, 
+    rgba(191,255,138,0.95) 100%);
+}
+</style>
+
+
+
+<script>
+/* ============================================================
+   SISTEMA RESPONSIVE PROFESIONAL - Optimización total para móviles
+   Adaptación dinámica de layouts, tamaños y comportamientos
+   Compatible con iOS y Android
+============================================================ */
+
+(function() {
+  
+  // 🔍 Detectar tipo de dispositivo
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const isTablet = /iPad|Android/i.test(navigator.userAgent) && window.innerWidth >= 768 && window.innerWidth <= 1024;
+  const isSmallMobile = window.innerWidth <= 375;
+  
+  // 📏 Breakpoints profesionales
+  const BREAKPOINTS = {
+    xs: 320,   // Móviles pequeños
+    sm: 480,   // Móviles medianos
+    md: 768,   // Tablets
+    lg: 1024,  // Desktop pequeño
+    xl: 1280   // Desktop grande
+  };
+  
+  // 🎯 Obtener breakpoint actual
+  function getCurrentBreakpoint() {
+    const w = window.innerWidth;
+    if (w <= BREAKPOINTS.xs) return 'xs';
+    if (w <= BREAKPOINTS.sm) return 'sm';
+    if (w <= BREAKPOINTS.md) return 'md';
+    if (w <= BREAKPOINTS.lg) return 'lg';
+    return 'xl';
+  }
+  
+  /* ============================================================
+     1️⃣ HEADER / NAVEGACIÓN MÓVIL
+  ============================================================ */
+  function optimizarHeader() {
+    const header = document.querySelector('header.site');
+    const nav = document.querySelector('.nav');
+    const navLinks = document.querySelector('.nav-links');
+    const brand = document.querySelector('.brand');
+    
+    if (!header || !nav) return;
+    
+    const bp = getCurrentBreakpoint();
+    
+    if (bp === 'xs' || bp === 'sm') {
+      // Ajustes para móviles pequeños
+      header.style.padding = '8px 0';
+      
+      if (nav) {
+        nav.style.flexDirection = 'column';
+        nav.style.gap = '10px';
+        nav.style.padding = '8px 0';
+      }
+      
+      if (brand) {
+        brand.style.padding = '4px 6px';
+      }
+      
+      const brandLogo = document.querySelector('.brand-logo');
+      if (brandLogo) {
+        brandLogo.style.width = '48px';
+        brandLogo.style.height = '48px';
+      }
+      
+      const brandTitle = document.querySelector('.brand-title');
+      if (brandTitle) {
+        brandTitle.style.fontSize = '14px';
+      }
+      
+      if (navLinks) {
+        navLinks.style.width = '100%';
+        navLinks.style.flexDirection = 'column';
+        navLinks.style.padding = '8px';
+        navLinks.style.gap = '4px';
+        
+        // Hacer los enlaces más táctiles
+        const links = navLinks.querySelectorAll('a, button');
+        links.forEach(link => {
+          link.style.padding = '10px 12px';
+          link.style.fontSize = '13px';
+          link.style.width = '100%';
+          link.style.textAlign = 'center';
+        });
+      }
+    } else if (bp === 'md') {
+      // Tablets
+      if (navLinks) {
+        navLinks.style.flexDirection = 'row';
+        navLinks.style.flexWrap = 'wrap';
+      }
+    }
+  }
+  
+  /* ============================================================
+     2️⃣ HERO / BUSCADOR PRINCIPAL
+  ============================================================ */
+  function optimizarHero() {
+    const hero = document.querySelector('.hero');
+    const heroGrid = document.querySelector('.hero-grid');
+    const searchCard = document.querySelector('.search-card');
+    const searchRow = document.querySelector('.search-row');
+    const heroTitle = document.querySelector('.hero-title');
+    const heroSub = document.querySelector('.hero-sub');
+    
+    const bp = getCurrentBreakpoint();
+    
+    if (bp === 'xs' || bp === 'sm') {
+      // Móviles pequeños
+      if (hero) {
+        hero.style.paddingTop = '16px';
+        hero.style.paddingBottom = '20px';
+      }
+      
+      if (heroGrid) {
+        heroGrid.style.gridTemplateColumns = '1fr';
+        heroGrid.style.gap = '16px';
+      }
+      
+      if (heroTitle) {
+        heroTitle.style.fontSize = '24px';
+        heroTitle.style.lineHeight = '1.2';
+        heroTitle.style.textAlign = 'center';
+      }
+      
+      if (heroSub) {
+        heroSub.style.fontSize = '14px';
+        heroSub.style.textAlign = 'center';
+      }
+      
+      if (searchCard) {
+        searchCard.style.padding = '12px';
+        searchCard.style.borderRadius = '16px';
+      }
+      
+      if (searchRow) {
+        searchRow.style.gridTemplateColumns = '1fr';
+        searchRow.style.gap = '8px';
+        
+        // Hacer inputs más grandes en móvil
+        const inputs = searchRow.querySelectorAll('.input, .select');
+        inputs.forEach(input => {
+          input.style.padding = '14px 12px';
+          input.style.fontSize = '16px'; // Evita zoom en iOS
+        });
+        
+        const btnSearch = searchRow.querySelector('.btn');
+        if (btnSearch) {
+          btnSearch.style.padding = '14px 16px';
+          btnSearch.style.fontSize = '15px';
+          btnSearch.style.width = '100%';
+        }
+      }
+      
+      // Chips de búsqueda rápida
+      const chips = document.querySelectorAll('.chip');
+      chips.forEach(chip => {
+        chip.style.fontSize = '12px';
+        chip.style.padding = '6px 10px';
+      });
+      
+    } else if (bp === 'md') {
+      // Tablets
+      if (searchRow) {
+        searchRow.style.gridTemplateColumns = '1fr 1fr';
+      }
+    }
+  }
+  
+  /* ============================================================
+     3️⃣ KPIs (Indicadores)
+  ============================================================ */
+  function optimizarKPIs() {
+    const kpis = document.querySelector('.kpis');
+    const bp = getCurrentBreakpoint();
+    
+    if (!kpis) return;
+    
+    if (bp === 'xs' || bp === 'sm') {
+      kpis.style.gridTemplateColumns = '1fr';
+      kpis.style.gap = '10px';
+      
+      const kpiItems = kpis.querySelectorAll('.kpi');
+      kpiItems.forEach(kpi => {
+        kpi.style.padding = '12px';
+        
+        const icon = kpi.querySelector('.kpi-icon');
+        if (icon) {
+          icon.style.width = '36px';
+          icon.style.height = '36px';
+          icon.style.fontSize = '18px';
+        }
+        
+        const title = kpi.querySelector('.kpi-title');
+        if (title) title.style.fontSize = '11px';
+        
+        const value = kpi.querySelector('.kpi-value');
+        if (value) value.style.fontSize = '18px';
+      });
+    } else if (bp === 'md') {
+      kpis.style.gridTemplateColumns = 'repeat(2, 1fr)';
+    }
+  }
+  
+  /* ============================================================
+     4️⃣ CARRUSEL HERO
+  ============================================================ */
+  function optimizarCarrusel() {
+    const carousel = document.querySelector('.hero-carousel-premium');
+    const badge = document.querySelector('.carousel-badge');
+    const dots = document.querySelector('.carousel-dots');
+    const prevBtn = document.querySelector('.carousel-prev');
+    const nextBtn = document.querySelector('.carousel-next');
+    
+    const bp = getCurrentBreakpoint();
+    
+    if (!carousel) return;
+    
+    if (bp === 'xs' || bp === 'sm') {
+      carousel.style.borderRadius = '16px';
+      carousel.style.aspectRatio = '16/10'; // Más vertical en móvil
+      
+      if (badge) {
+        badge.style.top = '10px';
+        badge.style.left = '10px';
+        badge.style.padding = '6px 12px';
+        badge.style.fontSize = '11px';
+        
+        const badgeText = badge.querySelector('.badge-text');
+        if (badgeText) badgeText.style.fontSize = '10px';
+        
+        const badgeIcon = badge.querySelector('.badge-icon');
+        if (badgeIcon) badgeIcon.style.fontSize = '14px';
+      }
+      
+      // Botones más pequeños en móvil
+      [prevBtn, nextBtn].forEach(btn => {
+        if (btn) {
+          btn.style.width = '36px';
+          btn.style.height = '36px';
+        }
+      });
+      
+      if (prevBtn) prevBtn.style.left = '8px';
+      if (nextBtn) nextBtn.style.right = '8px';
+      
+      if (dots) {
+        dots.style.bottom = '12px';
+        dots.style.gap = '6px';
+        
+        const dotItems = dots.querySelectorAll('.carousel-dot');
+        dotItems.forEach(dot => {
+          dot.style.width = '6px';
+          dot.style.height = '6px';
+        });
+        
+        const activeDot = dots.querySelector('.carousel-dot.active');
+        if (activeDot) activeDot.style.width = '20px';
+      }
+      
+      // Contenido del slide
+      const slideTitle = document.querySelectorAll('.slide-title');
+      slideTitle.forEach(title => {
+        title.style.fontSize = '18px';
+      });
+      
+      const slideDesc = document.querySelectorAll('.slide-desc');
+      slideDesc.forEach(desc => {
+        desc.style.fontSize = '12px';
+      });
+      
+      const slideOverlay = document.querySelectorAll('.slide-overlay');
+      slideOverlay.forEach(overlay => {
+        overlay.style.padding = '16px';
+      });
+    }
+  }
+  
+  /* ============================================================
+     5️⃣ GRID DE CATEGORÍAS
+  ============================================================ */
+  function optimizarCategorias() {
+    const catGrid = document.querySelector('.cat-grid');
+    const bp = getCurrentBreakpoint();
+    
+    if (!catGrid) return;
+    
+    if (bp === 'xs') {
+      catGrid.style.gridTemplateColumns = '1fr';
+      catGrid.style.gap = '10px';
+    } else if (bp === 'sm') {
+      catGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+      catGrid.style.gap = '10px';
+    } else if (bp === 'md') {
+      catGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+      catGrid.style.gap = '12px';
+    }
+    
+    // Ajustar tarjetas individuales
+    const catCards = catGrid.querySelectorAll('.cat-card');
+    catCards.forEach(card => {
+      if (bp === 'xs' || bp === 'sm') {
+        card.style.minHeight = '100px';
+        card.style.borderRadius = '12px';
+        
+        const media = card.querySelector('.cat-media');
+        if (media) {
+          media.style.height = '56px';
+          media.style.fontSize = '24px';
+        }
+        
+        const body = card.querySelector('.cat-body');
+        if (body) body.style.padding = '10px';
+        
+        const badge = card.querySelector('.badge');
+        if (badge) {
+          badge.style.fontSize = '10px';
+          badge.style.padding = '4px 8px';
+        }
+      }
+    });
+  }
+  
+  /* ============================================================
+     6️⃣ LISTADOS / GRILLAS DE EMPRESAS
+  ============================================================ */
+  function optimizarListados() {
+    const gridList = document.querySelector('.grid-list');
+    const toolbar = document.querySelector('.toolbar');
+    const resultsBar = document.querySelector('.results-bar');
+    
+    const bp = getCurrentBreakpoint();
+    
+    // Grid de empresas
+    if (gridList) {
+      if (bp === 'xs' || bp === 'sm') {
+        gridList.style.gridTemplateColumns = '1fr';
+        gridList.style.gap = '12px';
+        
+        const cards = gridList.querySelectorAll('.card-company');
+        cards.forEach(card => {
+          card.style.borderRadius = '14px';
+          
+          const cardHead = card.querySelector('.card-head');
+          if (cardHead) {
+            cardHead.style.padding = '10px';
+            cardHead.style.gap = '10px';
+          }
+          
+          const cardLogo = card.querySelector('.card-logo');
+          if (cardLogo) {
+            cardLogo.style.width = '52px';
+            cardLogo.style.height = '52px';
+          }
+          
+          const cardTitle = card.querySelector('.card-title');
+          if (cardTitle) {
+            const titleLink = cardTitle.querySelector('a');
+            if (titleLink) titleLink.style.fontSize = '15px';
+          }
+          
+          const cardBody = card.querySelector('.card-body');
+          if (cardBody) {
+            cardBody.style.padding = '10px';
+            cardBody.style.gap = '8px';
+          }
+          
+          const cardActions = card.querySelector('.card-actions');
+          if (cardActions) {
+            cardActions.style.flexDirection = 'column';
+            cardActions.style.width = '100%';
+            
+            const buttons = cardActions.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+              btn.style.width = '100%';
+              btn.style.padding = '10px 14px';
+              btn.style.fontSize = '13px';
+            });
+          }
+        });
+      } else if (bp === 'md') {
+        gridList.style.gridTemplateColumns = 'repeat(2, 1fr)';
+      }
+    }
+    
+    // Toolbar / Barra de filtros
+    if (toolbar) {
+      if (bp === 'xs' || bp === 'sm') {
+        toolbar.style.flexDirection = 'column';
+        toolbar.style.alignItems = 'stretch';
+        toolbar.style.gap = '10px';
+        
+        const toolbarLeft = toolbar.querySelector('.left');
+        const toolbarRight = toolbar.querySelector('.right');
+        
+        [toolbarLeft, toolbarRight].forEach(section => {
+          if (section) {
+            section.style.width = '100%';
+            section.style.flexDirection = 'column';
+            section.style.gap = '8px';
+          }
+        });
+        
+        const selects = toolbar.querySelectorAll('.select');
+        selects.forEach(select => {
+          select.style.width = '100%';
+          select.style.fontSize = '14px';
+          select.style.padding = '12px 14px';
+        });
+        
+        const buttons = toolbar.querySelectorAll('.btn');
+        buttons.forEach(btn => {
+          btn.style.width = '100%';
+        });
+      }
+    }
+    
+    // Results bar
+    if (resultsBar) {
+      if (bp === 'xs' || bp === 'sm') {
+        resultsBar.style.flexDirection = 'column';
+        resultsBar.style.gap = '10px';
+        
+        const stats = resultsBar.querySelector('.stats');
+        const actions = resultsBar.querySelector('.actions');
+        
+        [stats, actions].forEach(section => {
+          if (section) {
+            section.style.width = '100%';
+            section.style.flexDirection = 'column';
+            section.style.gap = '8px';
+          }
+        });
+      }
+    }
+  }
+  
+  /* ============================================================
+     7️⃣ FICHA DE EMPRESA
+  ============================================================ */
+  function optimizarFicha() {
+    const ficha = document.querySelector('.ficha');
+    const fichaHead = document.querySelector('.ficha-head');
+    const gallery = document.querySelector('.gallery');
+    const sideCards = document.querySelectorAll('.side-card');
+    
+    const bp = getCurrentBreakpoint();
+    
+    if (!ficha) return;
+    
+    if (bp === 'xs' || bp === 'sm') {
+      ficha.style.gridTemplateColumns = '1fr';
+      ficha.style.gap = '16px';
+      
+      // Header de la ficha
+      if (fichaHead) {
+        fichaHead.style.flexDirection = 'column';
+        fichaHead.style.alignItems = 'center';
+        fichaHead.style.textAlign = 'center';
+        fichaHead.style.padding = '14px';
+        fichaHead.style.gap = '12px';
+        
+        const fichaLogo = fichaHead.querySelector('.ficha-logo');
+        if (fichaLogo) {
+          fichaLogo.style.width = '64px';
+          fichaLogo.style.height = '64px';
+        }
+        
+        const fichaTitle = fichaHead.querySelector('.ficha-title h1');
+        if (fichaTitle) {
+          fichaTitle.style.fontSize = '20px';
+          fichaTitle.style.textAlign = 'center';
+        }
+        
+        const verify = fichaHead.querySelector('.verify');
+        if (verify) {
+          verify.style.width = '100%';
+          verify.style.justifyContent = 'center';
+        }
+      }
+      
+      // Galería
+      if (gallery) {
+        gallery.style.padding = '8px';
+        gallery.style.borderRadius = '12px';
+        
+        const galleryMain = gallery.querySelector('.gallery-main');
+        if (galleryMain) {
+          galleryMain.style.aspectRatio = '4/3';
+          galleryMain.style.borderRadius = '12px';
+        }
+        
+        const thumbs = gallery.querySelector('.gallery-thumbs');
+        if (thumbs) {
+          thumbs.style.gridTemplateColumns = 'repeat(4, 1fr)';
+          thumbs.style.gap = '6px';
+          thumbs.style.marginTop = '8px';
+        }
+      }
+      
+      // Tabs
+      const tabs = document.querySelector('.tabs');
+      if (tabs) {
+        tabs.style.overflowX = 'auto';
+        tabs.style.gap = '4px';
+        tabs.style.WebkitOverflowScrolling = 'touch';
+        
+        const tabButtons = tabs.querySelectorAll('button');
+        tabButtons.forEach(btn => {
+          btn.style.padding = '8px 12px';
+          btn.style.fontSize = '13px';
+          btn.style.whiteSpace = 'nowrap';
+        });
+      }
+      
+      const tabPanel = document.querySelectorAll('.tab-panel');
+      tabPanel.forEach(panel => {
+        panel.style.padding = '12px';
+        panel.style.fontSize = '14px';
+      });
+      
+      // Tarjetas laterales
+      sideCards.forEach(card => {
+        card.style.padding = '14px';
+        card.style.borderRadius = '14px';
+        
+        const infoList = card.querySelector('.info-list');
+        if (infoList) {
+          infoList.style.gap = '10px';
+          
+          const infoRows = infoList.querySelectorAll('.info-row');
+          infoRows.forEach(row => {
+            row.style.flexDirection = 'column';
+            row.style.alignItems = 'flex-start';
+            row.style.gap = '4px';
+            
+            const k = row.querySelector('.k');
+            if (k) k.style.width = '100%';
+          });
+        }
+      });
+      
+      // Formulario de contacto
+      const contactForm = document.querySelector('#contactForm');
+      if (contactForm) {
+        const formGroups = contactForm.querySelectorAll('.form-group');
+        formGroups.forEach(group => {
+          const input = group.querySelector('.input, .textarea');
+          if (input) {
+            input.style.fontSize = '16px'; // Evita zoom en iOS
+            input.style.padding = '12px 14px';
+          }
+        });
+        
+        const buttonGroup = contactForm.querySelector('.button-group');
+        if (buttonGroup) {
+          buttonGroup.style.gridTemplateColumns = '1fr';
+          buttonGroup.style.gap = '10px';
+        }
+      }
+    }
+  }
+  
+  /* ============================================================
+     8️⃣ FOOTER
+  ============================================================ */
+  function optimizarFooter() {
+    const footer = document.querySelector('footer.site');
+    const fRow = document.querySelector('.f-row');
+    const fLinks = document.querySelector('.f-links');
+    
+    const bp = getCurrentBreakpoint();
+    
+    if (!footer) return;
+    
+    if (bp === 'xs' || bp === 'sm') {
+      footer.style.padding = '16px 0';
+      
+      if (fRow) {
+        fRow.style.flexDirection = 'column';
+        fRow.style.textAlign = 'center';
+        fRow.style.gap = '12px';
+      }
+      
+      if (fLinks) {
+        fLinks.style.justifyContent = 'center';
+        fLinks.style.gap = '8px';
+        
+        const links = fLinks.querySelectorAll('a');
+        links.forEach(link => {
+          link.style.padding = '6px 10px';
+          link.style.fontSize = '13px';
+        });
+      }
+    }
+  }
+  
+  /* ============================================================
+     9️⃣ BOTONES FLOTANTES
+  ============================================================ */
+  function optimizarBotonesFlotantes() {
+    const floatOffers = document.getElementById('ppFloatBtn');
+    const floatWA = document.getElementById('btnWhatsAppFloat');
+    const toTop = document.getElementById('btnToTop');
+    
+    const bp = getCurrentBreakpoint();
+    
+    if (bp === 'xs' || bp === 'sm') {
+      // Botón de ofertas
+      if (floatOffers) {
+        floatOffers.style.bottom = '16px';
+        floatOffers.style.right = '16px';
+        floatOffers.style.padding = '10px 14px';
+        floatOffers.style.fontSize = '13px';
+        floatOffers.style.borderRadius = '20px';
+      }
+      
+      // Botón WhatsApp
+      if (floatWA) {
+        floatWA.style.width = '52px';
+        floatWA.style.height = '52px';
+        floatWA.style.bottom = '80px';
+        floatWA.style.right = '16px';
+        floatWA.style.fontSize = '26px';
+      }
+      
+      // Botón volver arriba
+      if (toTop) {
+        toTop.style.width = '48px';
+        toTop.style.height = '48px';
+        toTop.style.bottom = '140px';
+        toTop.style.right = '16px';
+        toTop.style.fontSize = '14px';
+      }
+    }
+  }
+  
+  /* ============================================================
+     🔟 PANEL WHATSAPP FLOTANTE
+  ============================================================ */
+  function optimizarPanelWA() {
+    const panel = document.getElementById('waPanelFloat');
+    const bp = getCurrentBreakpoint();
+    
+    if (!panel) return;
+    
+    if (bp === 'xs' || bp === 'sm') {
+      panel.style.width = '95%';
+      panel.style.maxWidth = 'none';
+      panel.style.borderRadius = '16px 16px 0 0';
+      
+      const header = panel.querySelector('.wa-panel-header');
+      if (header) {
+        header.style.padding = '10px 14px';
+      }
+      
+      const title = panel.querySelector('.wa-panel-title');
+      if (title) {
+        title.style.fontSize = '13px';
+      }
+      
+      const body = panel.querySelector('.wa-panel-body');
+      if (body) {
+        body.style.padding = '12px 14px 16px';
+      }
+      
+      const textarea = panel.querySelector('.wa-textarea');
+      if (textarea) {
+        textarea.style.fontSize = '14px';
+        textarea.style.minHeight = '60px';
+      }
+      
+      const sendBtn = panel.querySelector('.wa-send-btn');
+      if (sendBtn) {
+        sendBtn.style.padding = '10px 18px';
+        sendBtn.style.fontSize = '13px';
+      }
+    }
+  }
+  
+  /* ============================================================
+     1️⃣1️⃣ LIGHTBOX DE IMÁGENES
+  ============================================================ */
+  function optimizarLightbox() {
+    const lightbox = document.getElementById('ilLightbox');
+    const bp = getCurrentBreakpoint();
+    
+    if (!lightbox) return;
+    
+    if (bp === 'xs' || bp === 'sm') {
+      const img = lightbox.querySelector('img');
+      if (img) {
+        img.style.maxWidth = '95vw';
+        img.style.maxHeight = '85vh';
+      }
+      
+      const prevBtn = lightbox.querySelector('#lbPrev');
+      const nextBtn = lightbox.querySelector('#lbNext');
+      
+      [prevBtn, nextBtn].forEach(btn => {
+        if (btn) {
+          btn.style.width = '40px';
+          btn.style.height = '40px';
+          btn.style.fontSize = '24px';
+        }
+      });
+      
+      if (prevBtn) prevBtn.style.left = '8px';
+      if (nextBtn) nextBtn.style.right = '8px';
+      
+      const caption = lightbox.querySelector('.caption');
+      if (caption) {
+        caption.style.fontSize = '12px';
+        caption.style.padding = '8px';
+        caption.style.bottom = '8px';
+      }
+    }
+  }
+  
+  /* ============================================================
+     1️⃣2️⃣ MEJORAS GENERALES DE UX MÓVIL
+  ============================================================ */
+  function mejorasUXMovil() {
+    const bp = getCurrentBreakpoint();
+    
+    if (bp === 'xs' || bp === 'sm') {
+      // Evitar zoom en inputs en iOS
+      const inputs = document.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        if (!input.style.fontSize || parseFloat(input.style.fontSize) < 16) {
+          input.style.fontSize = '16px';
+        }
+      });
+      
+      // Mejorar área de toque en botones
+      const buttons = document.querySelectorAll('button, .btn, a[role="button"]');
+      buttons.forEach(btn => {
+        const currentPadding = window.getComputedStyle(btn).padding;
+        const paddingValue = parseFloat(currentPadding);
+        if (paddingValue < 10) {
+          btn.style.padding = '10px 14px';
+        }
+      });
+      
+      // Ajustar contenedores principales
+      const container = document.querySelectorAll('.container');
+      container.forEach(cont => {
+        cont.style.paddingInline = '16px';
+      });
+      
+      // Mejorar legibilidad de textos
+      const paragraphs = document.querySelectorAll('p, .desc, .lead');
+      paragraphs.forEach(p => {
+        const fontSize = window.getComputedStyle(p).fontSize;
+        if (parseFloat(fontSize) < 14) {
+          p.style.fontSize = '14px';
+        }
+        p.style.lineHeight = '1.6';
+      });
+      
+      // Espaciado entre secciones
+      const sections = document.querySelectorAll('.section');
+      sections.forEach(section => {
+        section.style.paddingBlock = '16px 24px';
+      });
+    }
+  }
+  
+  /* ============================================================
+     1️⃣3️⃣ ANIMACIONES SUAVES EN MÓVIL
+  ============================================================ */
+  function configurarAnimaciones() {
+    // Reducir animaciones en móviles para mejor performance
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.style.setProperty('--transition-speed', '0ms');
+      return;
+    }
+    
+    const bp = getCurrentBreakpoint();
+    if (bp === 'xs' || bp === 'sm') {
+      // Transiciones más rápidas en móvil
+      const elements = document.querySelectorAll('*');
+      elements.forEach(el => {
+        const transition = window.getComputedStyle(el).transition;
+        if (transition && transition !== 'none' && !transition.includes('transform')) {
+          el.style.transitionDuration = '0.15s';
+        }
+      });
+    }
+  }
+  
+  /* ============================================================
+     1️⃣4️⃣ ORIENTACIÓN DE PANTALLA
+  ============================================================ */
+  function manejarOrientacion() {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    const bp = getCurrentBreakpoint();
+    
+    if ((bp === 'xs' || bp === 'sm') && isLandscape) {
+      // Ajustes para móvil en horizontal
+      const hero = document.querySelector('.hero');
+      if (hero) hero.style.paddingBlock = '12px';
+      
+      const carousel = document.querySelector('.hero-carousel-premium');
+      if (carousel) carousel.style.aspectRatio = '21/9';
+    }
+  }
+  
+  /* ============================================================
+     1️⃣5️⃣ FUNCIÓN PRINCIPAL - EJECUTAR TODO
+  ============================================================ */
+  function aplicarOptimizaciones() {
+    console.log('📱 Aplicando optimizaciones responsive...');
+    
+    optimizarHeader();
+    optimizarHero();
+    optimizarKPIs();
+    optimizarCarrusel();
+    optimizarCategorias();
+    optimizarListados();
+    optimizarFicha();
+    optimizarFooter();
+    optimizarBotonesFlotantes();
+    optimizarPanelWA();
+    optimizarLightbox();
+    mejorasUXMovil();
+    configurarAnimaciones();
+    manejarOrientacion();
+    
+    console.log('✅ Optimizaciones aplicadas - Breakpoint:', getCurrentBreakpoint());
+  }
+  
+  /* ============================================================
+     1️⃣6️⃣ OBSERVADORES Y EVENTOS
+  ============================================================ */
+  
+  // Aplicar al cargar
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', aplicarOptimizaciones);
+  } else {
+    aplicarOptimizaciones();
+  }
+  
+  // Re-aplicar al cambiar tamaño de ventana (con debounce)
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(aplicarOptimizaciones, 150);
+  });
+  
+  // Re-aplicar al cambiar orientación
+  // Re-aplicar al cambiar orientación
+  window.addEventListener('orientationchange', () => {
+    setTimeout(aplicarOptimizaciones, 200);
+  });
+  
+  // Re-aplicar al navegar (para SPAs)
+  window.addEventListener('hashchange', () => {
+    setTimeout(aplicarOptimizaciones, 100);
+  });
+  
+  // Observador de mutaciones para contenido dinámico
+  const observer = new MutationObserver((mutations) => {
+    let shouldReapply = false;
+    
+    mutations.forEach(mutation => {
+      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === 1) { // Es un elemento
+            const importantSelectors = [
+              '.hero', '.ficha', '.grid-list', '.cat-grid',
+              '.toolbar', '.results-bar', '.carousel'
+            ];
+            
+            if (importantSelectors.some(sel => node.matches?.(sel) || node.querySelector?.(sel))) {
+              shouldReapply = true;
+            }
+          }
+        });
+      }
+    });
+    
+    if (shouldReapply) {
+      setTimeout(aplicarOptimizaciones, 50);
+    }
+  });
+  
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+  
+  /* ============================================================
+     1️⃣7️⃣ DETECCIÓN DE GESTOS TÁCTILES
+  ============================================================ */
+  
+  // Mejorar experiencia de scroll en iOS
+  if (isMobile) {
+    document.body.style.WebkitOverflowScrolling = 'touch';
+    
+    // Prevenir bounce en iOS en elementos específicos
+    const scrollContainers = document.querySelectorAll('.tab-panel, .toolbar, .nav-links');
+    scrollContainers.forEach(container => {
+      let startY = 0;
+      
+      container.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].pageY;
+      }, { passive: true });
+      
+      container.addEventListener('touchmove', (e) => {
+        const scrollTop = container.scrollTop;
+        const scrollHeight = container.scrollHeight;
+        const height = container.clientHeight;
+        const delta = e.touches[0].pageY - startY;
+        
+        // Prevenir overscroll
+        if ((scrollTop === 0 && delta > 0) || 
+            (scrollTop + height >= scrollHeight && delta < 0)) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+    });
+  }
+  
+  /* ============================================================
+     1️⃣8️⃣ OPTIMIZACIÓN DE IMÁGENES EN MÓVIL
+  ============================================================ */
+  function optimizarImagenes() {
+    const bp = getCurrentBreakpoint();
+    
+    if (bp === 'xs' || bp === 'sm') {
+      const images = document.querySelectorAll('img');
+      
+      images.forEach(img => {
+        // Lazy loading nativo
+        if (!img.hasAttribute('loading')) {
+          img.setAttribute('loading', 'lazy');
+        }
+        
+        // Reducir calidad en móvil si es posible
+        const src = img.getAttribute('src');
+        if (src && !src.includes('data:') && !img.dataset.optimized) {
+          img.dataset.optimized = 'true';
+          
+          // Si la imagen es muy grande, aplicar max-width
+          img.style.maxWidth = '100%';
+          img.style.height = 'auto';
+        }
+      });
+    }
+  }
+  
+  // Aplicar optimización de imágenes
+  optimizarImagenes();
+  
+  /* ============================================================
+     1️⃣9️⃣ MENÚ HAMBURGUESA (Si hay muchos enlaces)
+  ============================================================ */
+  function crearMenuHamburguesa() {
+    const navLinks = document.querySelector('.nav-links');
+    const bp = getCurrentBreakpoint();
+    
+    if (!navLinks) return;
+    
+    const links = navLinks.querySelectorAll('a, button');
+    
+    if ((bp === 'xs' || bp === 'sm') && links.length > 3) {
+      // Verificar si ya existe el menú hamburguesa
+      if (document.getElementById('mobileMenuToggle')) return;
+      
+      // Crear botón hamburguesa
+      const hamburger = document.createElement('button');
+      hamburger.id = 'mobileMenuToggle';
+      hamburger.className = 'mobile-menu-toggle';
+      hamburger.innerHTML = `
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      `;
+      hamburger.setAttribute('aria-label', 'Abrir menú');
+      hamburger.setAttribute('aria-expanded', 'false');
+      
+      // Estilos del hamburger
+      hamburger.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        width: 32px;
+        height: 32px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        z-index: 10;
+      `;
+      
+      const lines = hamburger.querySelectorAll('.hamburger-line');
+      lines.forEach(line => {
+        line.style.cssText = `
+          width: 100%;
+          height: 3px;
+          background: var(--text);
+          border-radius: 10px;
+          transition: all 0.3s ease;
+        `;
+      });
+      
+      // Ocultar menú por defecto en móvil
+      navLinks.style.position = 'fixed';
+      navLinks.style.top = '60px';
+      navLinks.style.right = '0';
+      navLinks.style.width = '250px';
+      navLinks.style.height = 'calc(100vh - 60px)';
+      navLinks.style.transform = 'translateX(100%)';
+      navLinks.style.transition = 'transform 0.3s ease';
+      navLinks.style.overflowY = 'auto';
+      navLinks.style.boxShadow = '-4px 0 20px rgba(0,0,0,0.2)';
+      
+      // Insertar botón en el nav
+      const nav = document.querySelector('.nav');
+      if (nav) {
+        nav.style.position = 'relative';
+        nav.appendChild(hamburger);
+      }
+      
+      // Toggle menú
+      hamburger.addEventListener('click', () => {
+        const isOpen = hamburger.getAttribute('aria-expanded') === 'true';
+        
+        if (isOpen) {
+          navLinks.style.transform = 'translateX(100%)';
+          hamburger.setAttribute('aria-expanded', 'false');
+          hamburger.classList.remove('open');
+          lines[0].style.transform = 'none';
+          lines[1].style.opacity = '1';
+          lines[2].style.transform = 'none';
+        } else {
+          navLinks.style.transform = 'translateX(0)';
+          hamburger.setAttribute('aria-expanded', 'true');
+          hamburger.classList.add('open');
+          // Animación X
+          lines[0].style.transform = 'rotate(45deg) translateY(10px)';
+          lines[1].style.opacity = '0';
+          lines[2].style.transform = 'rotate(-45deg) translateY(-10px)';
+        }
+      });
+      
+      // Cerrar al hacer clic en un enlace
+      links.forEach(link => {
+        link.addEventListener('click', () => {
+          navLinks.style.transform = 'translateX(100%)';
+          hamburger.setAttribute('aria-expanded', 'false');
+          hamburger.classList.remove('open');
+          lines[0].style.transform = 'none';
+          lines[1].style.opacity = '1';
+          lines[2].style.transform = 'none';
+        });
+      });
+      
+      // Cerrar al hacer clic fuera
+      document.addEventListener('click', (e) => {
+        if (!navLinks.contains(e.target) && !hamburger.contains(e.target)) {
+          if (hamburger.getAttribute('aria-expanded') === 'true') {
+            navLinks.style.transform = 'translateX(100%)';
+            hamburger.setAttribute('aria-expanded', 'false');
+            hamburger.classList.remove('open');
+            lines[0].style.transform = 'none';
+            lines[1].style.opacity = '1';
+            lines[2].style.transform = 'none';
+          }
+        }
+      });
+    } else {
+      // Limpiar menú hamburguesa si no es necesario
+      const existingToggle = document.getElementById('mobileMenuToggle');
+      if (existingToggle) {
+        existingToggle.remove();
+        navLinks.style.position = '';
+        navLinks.style.transform = '';
+        navLinks.style.width = '';
+        navLinks.style.height = '';
+      }
+    }
+  }
+  
+  crearMenuHamburguesa();
+  
+  /* ============================================================
+     2️⃣0️⃣ MODO LANDSCAPE EN MÓVILES
+  ============================================================ */
+  function ajustarLandscape() {
+    const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+    const bp = getCurrentBreakpoint();
+    
+    if ((bp === 'xs' || bp === 'sm') && isLandscape && isMobile) {
+      // Reducir paddings verticales
+      const sections = document.querySelectorAll('.section, .hero');
+      sections.forEach(section => {
+        section.style.paddingBlock = '8px 16px';
+      });
+      
+      // Carrusel más compacto
+      const carousel = document.querySelector('.hero-carousel-premium');
+      if (carousel) {
+        carousel.style.aspectRatio = '21/9';
+      }
+      
+      // Reducir altura del header
+      const header = document.querySelector('header.site');
+      if (header) {
+        header.style.padding = '4px 0';
+      }
+    }
+  }
+  
+  window.matchMedia('(orientation: landscape)').addListener(ajustarLandscape);
+  ajustarLandscape();
+  
+  /* ============================================================
+     2️⃣1️⃣ FEEDBACK VISUAL DE TOQUES
+  ============================================================ */
+  if (isMobile) {
+    // Agregar efecto ripple en botones
+    const buttons = document.querySelectorAll('button, .btn, a[role="button"]');
+    
+    buttons.forEach(button => {
+      button.addEventListener('touchstart', function(e) {
+        const ripple = document.createElement('span');
+        ripple.className = 'touch-ripple';
+        
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.touches[0].clientX - rect.left - size / 2;
+        const y = e.touches[0].clientY - rect.top - size / 2;
+        
+        ripple.style.cssText = `
+          position: absolute;
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.3);
+          transform: scale(0);
+          animation: ripple-animation 0.6s ease-out;
+          pointer-events: none;
+          left: ${x}px;
+          top: ${y}px;
+        `;
+        
+        this.style.position = 'relative';
+        this.style.overflow = 'hidden';
+        this.appendChild(ripple);
+        
+        setTimeout(() => ripple.remove(), 600);
+      }, { passive: true });
+    });
+    
+    // Agregar la animación al documento
+    if (!document.getElementById('ripple-animation-style')) {
+      const style = document.createElement('style');
+      style.id = 'ripple-animation-style';
+      style.textContent = `
+        @keyframes ripple-animation {
+          to {
+            transform: scale(2);
+            opacity: 0;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+  
+  /* ============================================================
+     2️⃣2️⃣ PROTECCIÓN CONTRA ZOOM ACCIDENTAL
+  ============================================================ */
+  if (isMobile) {
+    // Prevenir zoom con doble tap en elementos específicos
+    let lastTouchEnd = 0;
+    
+    document.addEventListener('touchend', (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        const target = e.target;
+        const preventZoomOn = [
+          'button', 'a', '.btn', '.chip', '.badge',
+          'input', 'select', 'textarea'
+        ];
+        
+        if (preventZoomOn.some(sel => target.matches(sel) || target.closest(sel))) {
+          e.preventDefault();
+        }
+      }
+      lastTouchEnd = now;
+    }, { passive: false });
+  }
+  
+  /* ============================================================
+     2️⃣3️⃣ INDICADOR DE CONEXIÓN
+  ============================================================ */
+  function mostrarEstadoConexion() {
+    const bp = getCurrentBreakpoint();
+    if (bp !== 'xs' && bp !== 'sm') return;
+    
+    if (!navigator.onLine) {
+      let offlineBanner = document.getElementById('offline-banner');
+      
+      if (!offlineBanner) {
+        offlineBanner = document.createElement('div');
+        offlineBanner.id = 'offline-banner';
+        offlineBanner.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          background: linear-gradient(135deg, #ef4444, #dc2626);
+          color: white;
+          padding: 8px 16px;
+          text-align: center;
+          font-size: 13px;
+          font-weight: 600;
+          z-index: 999999;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        `;
+        offlineBanner.textContent = '⚠️ Sin conexión a internet';
+        document.body.appendChild(offlineBanner);
+      }
+    } else {
+      const offlineBanner = document.getElementById('offline-banner');
+      if (offlineBanner) {
+        offlineBanner.remove();
+      }
+    }
+  }
+  
+  window.addEventListener('online', mostrarEstadoConexion);
+  window.addEventListener('offline', mostrarEstadoConexion);
+  mostrarEstadoConexion();
+  
+  /* ============================================================
+     2️⃣4️⃣ MEJORAR RENDIMIENTO EN SCROLL
+  ============================================================ */
+  if (isMobile) {
+    // Usar Intersection Observer para lazy loading agresivo
+    const lazyObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const element = entry.target;
+          
+          // Cargar imágenes
+          if (element.tagName === 'IMG' && element.dataset.src) {
+            element.src = element.dataset.src;
+            delete element.dataset.src;
+          }
+          
+          // Activar animaciones
+          if (element.classList.contains('lazy-animate')) {
+            element.classList.add('animated');
+          }
+          
+          lazyObserver.unobserve(element);
+        }
+      });
+    }, {
+      rootMargin: '50px',
+      threshold: 0.01
+    });
+    
+    // Observar elementos lazy
+    const lazyElements = document.querySelectorAll('[data-src], .lazy-animate');
+    lazyElements.forEach(el => lazyObserver.observe(el));
+  }
+  
+  /* ============================================================
+     2️⃣5️⃣ ACCESIBILIDAD EN MÓVIL
+  ============================================================ */
+  function mejorarAccesibilidad() {
+    const bp = getCurrentBreakpoint();
+    
+    if (bp === 'xs' || bp === 'sm') {
+      // Aumentar tamaño de áreas de toque
+      const touchTargets = document.querySelectorAll('a, button, .chip, .badge, input[type="checkbox"], input[type="radio"]');
+      
+      touchTargets.forEach(target => {
+        const rect = target.getBoundingClientRect();
+        const minSize = 44; // Tamaño mínimo recomendado por Apple/Android
+        
+        if (rect.width < minSize || rect.height < minSize) {
+          const currentPadding = window.getComputedStyle(target).padding;
+          const paddingValue = parseFloat(currentPadding);
+          
+          if (paddingValue < 12) {
+            target.style.padding = '12px';
+          }
+        }
+      });
+      
+      // Mejorar contraste en elementos importantes
+      const lowContrastElements = document.querySelectorAll('.muted, .hint, .small');
+      lowContrastElements.forEach(el => {
+        const color = window.getComputedStyle(el).color;
+        // Aquí podrías implementar un algoritmo de contraste
+        // Por simplicidad, solo aumentamos la opacidad
+        if (el.style.opacity && parseFloat(el.style.opacity) < 0.7) {
+          el.style.opacity = '0.75';
+        }
+      });
+    }
+  }
+  
+  mejorarAccesibilidad();
+  
+  /* ============================================================
+     2️⃣6️⃣ INFORMACIÓN DE DEBUG (Solo en desarrollo)
+  ============================================================ */
+  function mostrarInfoDebug() {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      const bp = getCurrentBreakpoint();
+      const info = document.createElement('div');
+      info.id = 'responsive-debug';
+      info.style.cssText = `
+        position: fixed;
+        bottom: 4px;
+        left: 4px;
+        background: rgba(0,0,0,0.85);
+        color: #0f0;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 11px;
+        z-index: 999999;
+        pointer-events: none;
+      `;
+      info.textContent = `📱 ${bp.toUpperCase()} | ${window.innerWidth}x${window.innerHeight} | ${isMobile ? 'Mobile' : 'Desktop'}`;
+      
+      const existing = document.getElementById('responsive-debug');
+      if (existing) existing.remove();
+      
+      document.body.appendChild(info);
+      
+      setTimeout(() => info.remove(), 3000);
+    }
+  }
+  
+  // Mostrar info al redimensionar
+  window.addEventListener('resize', () => {
+    clearTimeout(window.debugTimeout);
+    window.debugTimeout = setTimeout(mostrarInfoDebug, 100);
+  });
+  
+  /* ============================================================
+     2️⃣7️⃣ EXPORTAR FUNCIONES ÚTILES
+  ============================================================ */
+  window.ResponsiveUtils = {
+    getCurrentBreakpoint,
+    isMobile,
+    isTablet,
+    isSmallMobile,
+    aplicarOptimizaciones,
+    BREAKPOINTS
+  };
+  
+  console.log('✅ Sistema Responsive cargado');
+  console.log('📱 Dispositivo:', isMobile ? 'Móvil' : 'Desktop');
+  console.log('📐 Breakpoint actual:', getCurrentBreakpoint());
+  console.log('🔧 Funciones disponibles en window.ResponsiveUtils');
+  
+})();
+</script>
+
+<style>
+/* ============================================================
+   ESTILOS CSS ADICIONALES PARA RESPONSIVE
+   Complementan las optimizaciones de JavaScript
+============================================================ */
+
+/* Mejoras de viewport en móviles */
+@media (max-width: 480px) {
+  /* Prevenir zoom en inputs */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  
+  /* Mejorar legibilidad */
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  /* Scroll suave nativo */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Mejorar rendimiento de scroll */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Contenedores principales */
+  .container {
+    padding-inline: 16px !important;
+  }
+  
+  /* Tipografía responsive */
+  h1 { font-size: clamp(22px, 6vw, 28px) !important; }
+  h2 { font-size: clamp(18px, 5vw, 24px) !important; }
+  h3 { font-size: clamp(16px, 4vw, 20px) !important; }
+  
+  p, .desc, .lead {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+  
+  /* Botones más táctiles */
+  .btn, button {
+    min-height: 44px;
+    padding: 12px 16px !important;
+  }
+  
+  /* Cards más compactas */
+  .card, .side-card, .cat-card {
+    border-radius: 12px !important;
+  }
+  
+  /* Espaciado reducido */
+  .section {
+    padding-block: 16px 24px !important;
+  }
+  
+  /* Modales full-screen */
+  .modal, .lightbox {
+    border-radius: 0 !important;
+  }
+  
+  /* Ocultar elementos no esenciales en móvil */
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+/* Tablets */
+@media (min-width: 481px) and (max-width: 768px) {
+  .container {
+    padding-inline: 20px !important;
+  }
+  
+  .grid-list {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .cat-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+/* Landscape en móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero {
+    padding-block: 8px 12px !important;
+  }
+  
+  header.site {
+    padding-block: 4px !important;
+  }
+  
+  .section {
+    padding-block: 12px 16px !important;
+  }
+}
+
+/* Soporte para notch en iPhone X+ */
+@supports (padding: max(0px)) {
+  .container, header.site, footer.site {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  
+  header.site {
+    padding-top: max(8px, env(safe-area-inset-top));
+  }
+  
+  footer.site {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+/* PWA: Ocultar elementos cuando se usa como app */
+@media (display-mode: standalone) {
+  .browser-only {
+    display: none !important;
+  }
+}
+</style>
+
 </body>
 </html>
-
