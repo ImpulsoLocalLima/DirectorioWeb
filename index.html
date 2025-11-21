@@ -329,7 +329,7 @@ textarea { resize:vertical; min-height:120px; }
 .btn {
   border:none;
   border-radius:12px;
-  font-size:15px;
+  font-size:18px;
   font-weight:700;
   padding:14px;
   cursor:pointer;
@@ -7451,7 +7451,7 @@ function setupImageDescriptions(e, p){
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 240px;
+  gap: 80px;
   transition: all 0.25s ease;
   box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
 }
@@ -9941,6 +9941,713 @@ function setupImageDescriptions(e, p){
   }
 }
 </style>
+<script>
+/* ============================================================
+   OPTIMIZACIÓN ESPECÍFICA PANEL PRINCIPAL MÓVIL
+   - Header estático (no sticky)
+   - Ocultar botones flotantes
+   - Reorganizar búsqueda en columna
+   Colocar DESPUÉS del script responsive anterior
+============================================================ */
+
+(function() {
+  
+  // 🔍 Detectar dispositivo móvil
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+  
+  /* ============================================================
+     1️⃣ HACER HEADER ESTÁTICO EN MÓVILES (No sticky)
+  ============================================================ */
+  function desactivarStickyHeader() {
+    if (!isMobile) return;
+    
+    const header = document.querySelector('header.site');
+    
+    if (header) {
+      // Quitar posición sticky
+      header.style.position = 'relative';
+      header.style.top = 'auto';
+      
+      // Reducir padding
+      header.style.paddingBlock = '8px';
+      
+      // Quitar efectos de blur y shadow
+      header.style.backdropFilter = 'none';
+      header.style.background = 'var(--surface)';
+      header.style.borderBottom = '1px solid rgba(0,0,0,0.08)';
+      
+      console.log('✅ Header convertido a estático en móvil');
+    }
+  }
+  
+  /* ============================================================
+     2️⃣ OCULTAR BOTONES FLOTANTES EN MÓVILES
+  ============================================================ */
+  function ocultarBotonesFlotantes() {
+    if (!isMobile) return;
+    
+    // Ocultar botón "Explora las mejores ofertas"
+    const btnOfertas = document.getElementById('ppFloatBtn');
+    if (btnOfertas) {
+      btnOfertas.style.display = 'none';
+      console.log('✅ Botón ofertas oculto en móvil');
+    }
+    
+    // Ocultar botón WhatsApp flotante
+    const btnWhatsApp = document.getElementById('btnWhatsAppFloat');
+    if (btnWhatsApp) {
+      btnWhatsApp.style.display = 'none';
+      console.log('✅ Botón WhatsApp flotante oculto en móvil');
+    }
+    
+    // Ocultar botón "Volver arriba"
+    const btnToTop = document.getElementById('btnToTop');
+    if (btnToTop) {
+      btnToTop.style.display = 'none';
+      console.log('✅ Botón volver arriba oculto en móvil');
+    }
+    
+    // Ocultar botón de cambio de tema si existe
+    const btnTheme = document.querySelector('.theme-toggle');
+    if (btnTheme) {
+      btnTheme.style.display = 'none';
+    }
+  }
+  
+  /* ============================================================
+     3️⃣ REORGANIZAR BÚSQUEDA EN PANEL PRINCIPAL
+  ============================================================ */
+  function reorganizarBusquedaPrincipal() {
+    if (!isMobile) return;
+    
+    // Buscar el contenedor de filtros del panel principal
+    const filtrosPrincipal = document.querySelector('.pp-filters');
+    
+    if (filtrosPrincipal) {
+      // Cambiar a layout vertical
+      filtrosPrincipal.style.display = 'flex';
+      filtrosPrincipal.style.flexDirection = 'column';
+      filtrosPrincipal.style.gap = '10px';
+      filtrosPrincipal.style.padding = '12px';
+      
+      // Buscar el área de búsqueda
+      const searchArea = filtrosPrincipal.querySelector('.search');
+      
+      if (searchArea) {
+        // Hacer que ocupe todo el ancho
+        searchArea.style.width = '100%';
+        searchArea.style.order = '2'; // Mover al final
+        
+        // Input de búsqueda
+        const searchInput = searchArea.querySelector('#ppSearch');
+        if (searchInput) {
+          searchInput.style.width = '100%';
+          searchInput.style.fontSize = '16px'; // Evita zoom en iOS
+          searchInput.style.padding = '12px 14px';
+        }
+      }
+      
+      // Select de categoría
+      const categorySelect = filtrosPrincipal.querySelector('#ppCategory');
+      if (categorySelect) {
+        categorySelect.style.width = '100%';
+        categorySelect.style.fontSize = '16px';
+        categorySelect.style.padding = '12px 14px';
+        categorySelect.style.order = '1'; // Primera posición
+      }
+      
+      // Botón Reset
+      const btnReset = filtrosPrincipal.querySelector('#ppBtnReset');
+      if (btnReset) {
+        btnReset.style.width = '100%';
+        btnReset.style.padding = '12px 14px';
+        btnReset.style.order = '3'; // Última posición
+      }
+      
+      console.log('✅ Búsqueda reorganizada en columna');
+    }
+  }
+  
+  /* ============================================================
+     4️⃣ OPTIMIZAR GRID DE OFERTAS EN MÓVIL
+  ============================================================ */
+  function optimizarGridOfertas() {
+    if (!isMobile) return;
+    
+    const grid = document.querySelector('.pp-grid');
+    
+    if (grid) {
+      // Una sola columna en móvil
+      grid.style.gridTemplateColumns = '1fr';
+      grid.style.gap = '12px';
+      
+      // Optimizar tarjetas individuales
+      const cards = grid.querySelectorAll('.pp-card');
+      
+      cards.forEach(card => {
+        card.style.borderRadius = '14px';
+        
+        // Imagen más compacta
+        const media = card.querySelector('.pp-media');
+        if (media) {
+          media.style.height = '180px';
+        }
+        
+        // Cuerpo de la tarjeta
+        const body = card.querySelector('.pp-body');
+        if (body) {
+          body.style.padding = '12px';
+          body.style.gap = '8px';
+        }
+        
+        // Título más pequeño
+        const title = card.querySelector('.pp-titleCard');
+        if (title) {
+          title.style.fontSize = '16px';
+        }
+        
+        // Descripción
+        const desc = card.querySelector('.pp-desc');
+        if (desc) {
+          desc.style.fontSize = '13px';
+          desc.style.minHeight = 'auto';
+        }
+        
+        // Fila superior (título y badges)
+        const row = card.querySelector('.pp-row');
+        if (row) {
+          row.style.flexDirection = 'column';
+          row.style.alignItems = 'flex-start';
+          row.style.gap = '8px';
+        }
+        
+        // Badges
+        const badges = card.querySelector('.pp-badges');
+        if (badges) {
+          badges.style.flexWrap = 'wrap';
+          badges.style.gap = '6px';
+        }
+        
+        // Acciones
+        const actions = card.querySelector('.pp-ctas');
+        if (actions) {
+          actions.style.flexDirection = 'column';
+          actions.style.gap = '8px';
+          
+          const buttons = actions.querySelectorAll('.pp-cta-primary, .pp-cta-ghost');
+          buttons.forEach(btn => {
+            btn.style.width = '100%';
+            btn.style.padding = '10px 14px';
+            btn.style.fontSize = '14px';
+            btn.style.textAlign = 'center';
+            btn.style.justifyContent = 'center';
+          });
+        }
+      });
+      
+      console.log('✅ Grid de ofertas optimizado');
+    }
+  }
+  
+  /* ============================================================
+     5️⃣ AJUSTAR ENCABEZADO DEL PANEL PRINCIPAL
+  ============================================================ */
+  function ajustarEncabezadoPrincipal() {
+    if (!isMobile) return;
+    
+    const header = document.querySelector('.pp-header');
+    
+    if (header) {
+      header.style.flexDirection = 'column';
+      header.style.alignItems = 'flex-start';
+      header.style.gap = '8px';
+      header.style.marginBottom = '12px';
+      
+      // Título
+      const title = header.querySelector('.pp-title');
+      if (title) {
+        title.style.fontSize = '20px';
+        title.style.lineHeight = '1.3';
+      }
+      
+      // Subtítulo
+      const subtitle = header.querySelector('.pp-sub');
+      if (subtitle) {
+        subtitle.style.fontSize = '13px';
+      }
+      
+      // Contador
+      const contador = document.getElementById('ppCount');
+      if (contador) {
+        contador.style.fontSize = '18px';
+      }
+      
+      console.log('✅ Encabezado principal ajustado');
+    }
+  }
+  
+  /* ============================================================
+     6️⃣ OCULTAR PANEL WHATSAPP EN PANEL PRINCIPAL
+  ============================================================ */
+  function ocultarPanelWAEnPrincipal() {
+    if (!isMobile) return;
+    
+    // Solo ocultar si estamos en #/principal
+    if (location.hash.startsWith('#/principal')) {
+      const panelWA = document.getElementById('waPanelFloat');
+      if (panelWA) {
+        panelWA.style.display = 'none';
+        console.log('✅ Panel WhatsApp oculto en vista Principal');
+      }
+    }
+  }
+  
+  /* ============================================================
+     7️⃣ AJUSTAR BADGE "RECOMENDADO"
+  ============================================================ */
+  function ajustarBadgeRecomendado() {
+    if (!isMobile) return;
+    
+    const badge = document.querySelector('.pp-card .badge, .carousel-badge');
+    
+    if (badge) {
+      badge.style.fontSize = '10px';
+      badge.style.padding = '6px 10px';
+    }
+  }
+  
+  /* ============================================================
+     8️⃣ MEJORAR CONTADOR DE CARACTERES EN INPUTS
+  ============================================================ */
+  function mejorarInputsBusqueda() {
+    if (!isMobile) return;
+    
+    // Input del panel principal
+    const ppSearch = document.getElementById('ppSearch');
+    if (ppSearch) {
+      ppSearch.style.fontSize = '16px'; // Evita zoom iOS
+      ppSearch.style.padding = '12px 14px';
+      ppSearch.setAttribute('autocomplete', 'off');
+      ppSearch.setAttribute('autocorrect', 'off');
+      ppSearch.setAttribute('spellcheck', 'false');
+    }
+    
+    // Select de categoría
+    const ppCategory = document.getElementById('ppCategory');
+    if (ppCategory) {
+      ppCategory.style.fontSize = '16px';
+      ppCategory.style.padding = '12px 14px';
+    }
+  }
+  
+  /* ============================================================
+     9️⃣ DESACTIVAR SCROLL HORIZONTAL
+  ============================================================ */
+  function prevenirScrollHorizontal() {
+    if (!isMobile) return;
+    
+    document.body.style.overflowX = 'hidden';
+    
+    const principalPanel = document.getElementById('principalPanel');
+    if (principalPanel) {
+      principalPanel.style.overflowX = 'hidden';
+    }
+  }
+  
+  /* ============================================================
+     🔟 FUNCIÓN PRINCIPAL - EJECUTAR TODO
+  ============================================================ */
+  function aplicarOptimizacionesPrincipal() {
+    if (!isMobile) {
+      console.log('💻 Modo desktop - No se aplican optimizaciones móviles del Panel Principal');
+      return;
+    }
+    
+    console.log('📱 Aplicando optimizaciones específicas para Panel Principal en móvil...');
+    
+    desactivarStickyHeader();
+    ocultarBotonesFlotantes();
+    reorganizarBusquedaPrincipal();
+    optimizarGridOfertas();
+    ajustarEncabezadoPrincipal();
+    ocultarPanelWAEnPrincipal();
+    ajustarBadgeRecomendado();
+    mejorarInputsBusqueda();
+    prevenirScrollHorizontal();
+    
+    console.log('✅ Optimizaciones del Panel Principal aplicadas');
+  }
+  
+  /* ============================================================
+     1️⃣1️⃣ EVENTOS Y OBSERVADORES
+  ============================================================ */
+  
+  // Aplicar al cargar
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', aplicarOptimizacionesPrincipal);
+  } else {
+    aplicarOptimizacionesPrincipal();
+  }
+  
+  // Re-aplicar al navegar a #/principal
+  window.addEventListener('hashchange', () => {
+    if (location.hash.startsWith('#/principal')) {
+      setTimeout(aplicarOptimizacionesPrincipal, 100);
+    } else {
+      // Restaurar botones flotantes en otras vistas
+      if (isMobile) {
+        const btnWA = document.getElementById('btnWhatsAppFloat');
+        if (btnWA && location.hash.startsWith('#/empresa/')) {
+          btnWA.style.display = 'flex';
+        }
+        
+        const panelWA = document.getElementById('waPanelFloat');
+        if (panelWA && location.hash.startsWith('#/empresa/')) {
+          panelWA.style.display = 'block';
+        }
+      }
+    }
+  });
+  
+  // Observador para contenido dinámico
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach(mutation => {
+      if (mutation.type === 'childList') {
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === 1) {
+            // Si se agregó el panel principal
+            if (node.id === 'principalPanel' || node.querySelector('#principalPanel')) {
+              setTimeout(aplicarOptimizacionesPrincipal, 50);
+            }
+            
+            // Si se agregaron filtros
+            if (node.classList?.contains('pp-filters') || node.querySelector('.pp-filters')) {
+              setTimeout(reorganizarBusquedaPrincipal, 50);
+            }
+            
+            // Si se agregó el grid
+            if (node.classList?.contains('pp-grid') || node.querySelector('.pp-grid')) {
+              setTimeout(optimizarGridOfertas, 50);
+            }
+          }
+        });
+      }
+    });
+  });
+  
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+  
+  // Re-aplicar al redimensionar (con debounce)
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      const nowMobile = window.innerWidth <= 768;
+      if (nowMobile && location.hash.startsWith('#/principal')) {
+        aplicarOptimizacionesPrincipal();
+      }
+    }, 200);
+  });
+  
+  /* ============================================================
+     1️⃣2️⃣ EXPORTAR FUNCIÓN (Opcional)
+  ============================================================ */
+  window.OptimizacionPrincipalMovil = {
+    aplicar: aplicarOptimizacionesPrincipal,
+    isMobile
+  };
+  
+  console.log('✅ Sistema de optimización Panel Principal para móviles cargado');
+  
+})();
+
+
+/* ============================================================
+   HACER CLIC EN TODA LA TARJETA PARA ABRIR FICHA
+   Solución simple y efectiva
+============================================================ */
+
+(function() {
+  
+  function hacerTarjetasClickeables() {
+    // 🎯 Buscar todas las tarjetas de empresa
+    const tarjetas = document.querySelectorAll(
+      '.card-company, .pp-card, .list-item, .grid-list > article, .cat-grid article'
+    );
+    
+    tarjetas.forEach(tarjeta => {
+      // Evitar duplicar el evento
+      if (tarjeta.dataset.clickeable) return;
+      tarjeta.dataset.clickeable = 'true';
+      
+      // 🔍 Buscar el enlace "Ver ficha" dentro de la tarjeta
+      const enlaceFicha = tarjeta.querySelector('a[href*="#/empresa/"]');
+      
+      if (enlaceFicha) {
+        // 👆 Hacer toda la tarjeta clickeable
+        tarjeta.style.cursor = 'pointer';
+        
+        tarjeta.addEventListener('click', function(e) {
+          // ⛔ No activar si se hizo clic en un botón o enlace específico
+          if (
+            e.target.tagName === 'A' || 
+            e.target.tagName === 'BUTTON' ||
+            e.target.closest('a') ||
+            e.target.closest('button')
+          ) {
+            return; // Dejar que el enlace/botón funcione normalmente
+          }
+          
+          // ✅ Redirigir a la ficha
+          const url = enlaceFicha.getAttribute('href');
+          
+          if (url) {
+            // Cambiar el hash para navegar
+            window.location.hash = url.replace('#', '');
+            
+            console.log('✅ Navegando a:', url);
+          }
+        });
+        
+        // 🎨 Efecto visual al pasar el mouse
+        tarjeta.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-4px)';
+          this.style.transition = 'transform 0.2s ease';
+        });
+        
+        tarjeta.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0)';
+        });
+        
+        // 📱 Efecto visual al tocar en móvil
+        tarjeta.addEventListener('touchstart', function() {
+          this.style.opacity = '0.8';
+        });
+        
+        tarjeta.addEventListener('touchend', function() {
+          this.style.opacity = '1';
+        });
+      }
+    });
+    
+    console.log('✅ Tarjetas clickeables:', tarjetas.length);
+  }
+  
+  // 🚀 Ejecutar múltiples veces
+  function ejecutar() {
+    hacerTarjetasClickeables();
+    setTimeout(hacerTarjetasClickeables, 100);
+    setTimeout(hacerTarjetasClickeables, 300);
+    setTimeout(hacerTarjetasClickeables, 600);
+  }
+  
+  // ⚡ Al cargar
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ejecutar);
+  } else {
+    ejecutar();
+  }
+  
+  // 🔄 Al navegar (SPA)
+  window.addEventListener('hashchange', () => {
+    setTimeout(ejecutar, 100);
+  });
+  
+  // 👀 Observador para contenido dinámico
+  const observer = new MutationObserver(() => {
+    hacerTarjetasClickeables();
+  });
+  
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+  
+  console.log('🎯 Sistema de tarjetas clickeables activado');
+  
+})();
+</script>
+
+<style>
+/* ============================================================
+   ESTILOS CSS COMPLEMENTARIOS PARA PANEL PRINCIPAL MÓVIL
+============================================================ */
+
+/* Solo aplicar en móviles */
+@media (max-width: 768px) {
+  
+  /* Header no sticky */
+  header.site {
+    position: relative !important;
+    top: auto !important;
+  }
+  
+  /* Ocultar botones flotantes */
+  #ppFloatBtn,
+  #btnWhatsAppFloat,
+  #btnToTop,
+  .theme-toggle {
+    display: none !important;
+  }
+  
+  /* Panel principal optimizado */
+  #principalPanel {
+    padding: 16px 0;
+  }
+  
+  .pp-container {
+    padding-inline: 16px;
+  }
+  
+  /* Encabezado */
+  .pp-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .pp-title {
+    font-size: 20px !important;
+    line-height: 1.3 !important;
+  }
+  
+  .pp-sub {
+    font-size: 13px !important;
+  }
+  
+  /* Filtros en columna */
+  .pp-filters {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+  
+  .pp-filters .search {
+    width: 100% !important;
+    order: 2 !important;
+  }
+  
+  .pp-filters #ppCategory {
+    width: 100% !important;
+    order: 1 !important;
+    font-size: 16px !important;
+    padding: 12px 14px !important;
+  }
+  
+  .pp-filters #ppSearch {
+    width: 100% !important;
+    font-size: 16px !important;
+    padding: 12px 14px !important;
+  }
+  
+  .pp-filters #ppBtnReset {
+    width: 100% !important;
+    order: 3 !important;
+    padding: 12px 14px !important;
+  }
+  
+  /* Grid de ofertas */
+  .pp-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  
+  /* Tarjetas */
+  .pp-card {
+    border-radius: 14px !important;
+  }
+  
+  .pp-media {
+    height: 180px !important;
+  }
+  
+  .pp-body {
+    padding: 12px !important;
+    gap: 8px !important;
+  }
+  
+  .pp-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+  
+  .pp-titleCard {
+    font-size: 16px !important;
+  }
+  
+  .pp-desc {
+    font-size: 13px !important;
+    min-height: auto !important;
+  }
+  
+  .pp-ctas {
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100%;
+  }
+  
+  .pp-cta-primary,
+  .pp-cta-ghost {
+    width: 100% !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Ocultar panel WhatsApp en vista principal */
+  body[data-view="principal"] #waPanelFloat {
+    display: none !important;
+  }
+  
+  /* Prevenir scroll horizontal */
+  body,
+  #principalPanel {
+    overflow-x: hidden !important;
+  }
+  
+  /* Mejorar espaciado general */
+  #principalPanel .section {
+    padding-block: 12px 16px;
+  }
+  
+  /* Badge más pequeño */
+  .pp-card .badge {
+    font-size: 10px !important;
+    padding: 5px 8px !important;
+  }
+}
+
+/* Solo en móviles muy pequeños (< 375px) */
+@media (max-width: 375px) {
+  .pp-title {
+    font-size: 18px !important;
+  }
+  
+  .pp-sub {
+    font-size: 12px !important;
+  }
+  
+  .pp-media {
+    height: 160px !important;
+  }
+  
+  .pp-titleCard {
+    font-size: 15px !important;
+  }
+  
+  .pp-desc {
+    font-size: 12px !important;
+  }
+}
+</style>
+
 
 </body>
 </html>
